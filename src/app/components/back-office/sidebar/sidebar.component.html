@@ -1,0 +1,42 @@
+<div class="sidebar-glass" [ngClass]="{ 'collapsed': isCollapsed }">
+  <button class="toggle-btn" (click)="toggleSidebar()">
+  <i class="fa-solid" [ngClass]="isCollapsed ? 'fa-angle-right' : 'fa-angle-left'"></i>
+</button>
+
+  <div class="sidebar-header">
+    <img src="mouja.png" class="sidebar-logo" />
+    <h2 class="brand-title">AquaLux</h2>
+  </div>
+
+  <nav class="sidebar-menu">
+
+    <a routerLink="/main/dashboard"
+       class="menu-link"
+       routerLinkActive="active">
+      <i class="fa-solid fa-chart-line"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a routerLink="/main/produits"
+       class="menu-link"
+       routerLinkActive="active">
+      <i class="fa-solid fa-faucet"></i>
+      <span>Produits</span>
+    </a>
+
+    <a routerLink="/main/categories"
+       class="menu-link"
+       routerLinkActive="active">
+      <i class="fa-solid fa-list"></i>
+      <span>Catégories</span>
+    </a>
+
+    <a routerLink="/main/orders"
+       class="menu-link"
+       routerLinkActive="active">
+      <i class="fa-solid fa-cart-arrow-down"></i>
+      <span>Orders</span>
+    </a>
+
+  </nav>
+</div>

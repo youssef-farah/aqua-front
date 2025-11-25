@@ -1,0 +1,128 @@
+/* --- GLASSY SIDEBAR WRAPPER --- */
+.sidebar-glass {
+  width: 210px;
+  height: 100vh;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.171);
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  padding: 20px 15px;
+  border-radius: 0 18px 18px 0;
+
+  box-shadow: 6px 0 25px rgba(30, 59, 138, 0.238);
+  transition: width 0.35s ease;
+}
+
+/* --- HEADER SECTION --- */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.sidebar-logo {
+  width: 90px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+}
+
+.brand-title {
+  margin-top: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1e3a8a, #60a5fa);
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+}
+
+/* --- MENU LIST --- */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- INDIVIDUAL MENU LINK --- */
+.menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 14px;
+  text-decoration: none;
+
+  font-size: 16px;
+  font-weight: 500;
+  color: #2560ac;
+
+  border-radius: 10px;
+
+  transition: 0.25s ease;
+  border: 1px solid transparent;
+}
+
+/* Hover effect: glow + movement */
+.menu-link:hover {
+  background: rgba(96, 165, 250, 0.25);
+  border-color: rgba(148, 163, 184, 0.3);
+  transform: translateX(4px);
+}
+
+/* Active (selected) menu item */
+.menu-link.active {
+  background: rgba(59, 130, 246, 0.35);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.3);
+}
+
+/* Icons */
+.menu-link i {
+  font-size: 18px;
+  color: #93c5fd;
+  transition: 0.2s;
+}
+
+.menu-link:hover i {
+  color: white;
+}
+/* Collapsed Mode */
+.sidebar-glass.collapsed {
+  width: 60px !important;
+  padding: 20px 10px;
+}
+
+/* Hide text when collapsed */
+.sidebar-glass.collapsed .menu-link span,
+.sidebar-glass.collapsed .brand-title {
+  display: none;
+}
+
+.sidebar-glass.collapsed .sidebar-logo {
+  width: 50px;
+}
+
+/* Toggle button */
+.toggle-btn {
+  position: absolute;
+  right: -15px;
+  top: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn i {
+  color: #1e3a8a;
+}

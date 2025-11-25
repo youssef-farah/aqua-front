@@ -1,0 +1,89 @@
+<div class="category-crud-container">
+  <!-- Notifications -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="section-toolbar">
+    <h2>Gestion des Catégories</h2>
+    <button class="btn btn-primary" (click)="openCategoryForm()">
+      <span>+</span> Nouvelle Catégorie
+    </button>
+  </div>
+
+  <!-- Categories Grid -->
+  <div class="categories-grid">
+    <div *ngFor="let category of categories" class="category-card">
+      <div class="category-header">
+        <h3>{{ category.nom }}</h3>
+        <span class="category-badge">ID: {{ category.id_category }}</span>
+      </div>
+      <p class="category-desc">{{ category.description || 'Pas de description' }}</p>
+      <div class="category-actions">
+        <button 
+          class="btn btn-sm btn-edit"
+          (click)="openCategoryForm(category)"
+        >
+          ✏️ Modifier
+        </button>
+        <button 
+          class="btn btn-sm btn-delete"
+          (click)="deleteCategory(category.id_category)"
+        >
+          🗑️ Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="categories.length === 0" class="empty-state">
+    <p>Aucune catégorie trouvée</p>
+  </div>
+</div>
+
+<!-- Category Form Modal -->
+<div *ngIf="showCategoryForm" class="modal-overlay" (click)="closeCategoryForm()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingCategoryId ? 'Modifier la catégorie' : 'Ajouter une catégorie' }}</h2>
+      <button class="close-btn" (click)="closeCategoryForm()">&times;</button>
+    </div>
+
+    <form class="form" (ngSubmit)="saveCategory()">
+      <div class="form-group">
+        <label for="nom">Nom *</label>
+        <input 
+          id="nom"
+          type="text" 
+          [(ngModel)]="categoryFormData.nom"
+          name="nom"
+          placeholder="Nom de la catégorie"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="cat_description">Description</label>    
+        <textarea 
+          id="cat_description"
+          [(ngModel)]="categoryFormData.description"
+          name="description"
+          placeholder="Description de la catégorie"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeCategoryForm()">
+          Annuler
+        </button>
+        <button type="submit" class="btn btn-primary">
+          {{ editingCategoryId ? 'Mettre à jour' : 'Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

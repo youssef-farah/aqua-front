@@ -1,19 +1,61 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { HomeComponent } from './components/home/home.component';
+import { BoutiqueComponent } from './components/boutique/boutique.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DashboardComponent } from './components/back-office/dashboard/dashboard.component';
+import { ProductCrudComponent } from './components/back-office/product-crud/product-crud.component';
+import { CategoryCrudComponent } from './components/back-office/category-crud/category-crud.component';
+import { ContactComponent } from './components/contact/contact.component';
+import { CompteComponent } from './components/compte/compte.component';
+import { AproposComponent } from './components/apropos/apropos.component';
+import { ProductDetailsComponent } from './components/product-details/product-details.component';
+import { CartComponent } from './components/cart/cart.component';
+import { NgxEchartsModule } from 'ngx-echarts';
+import { OffreComponent } from './components/offre/offre.component';
+import { OrdersComponent } from './components/back-office/orders/orders.component';
+import { SidebarComponent } from './components/back-office/sidebar/sidebar.component';
+import { MainComponent } from './components/back-office/main/main.component';
+
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NavbarComponent,
+    FooterComponent,
+    HomeComponent,
+    BoutiqueComponent,
+    DashboardComponent,
+    ProductCrudComponent,
+    CategoryCrudComponent,
+    ContactComponent,
+    CompteComponent,
+    AproposComponent,
+    ProductDetailsComponent,
+    CartComponent,
+    OffreComponent,
+    OrdersComponent,
+    SidebarComponent,
+    MainComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NgxEchartsModule.forRoot({ echarts: () => import('echarts') })
+    
+  
+    
   ],
   providers: [
-    provideClientHydration()
+    provideClientHydration(),
+    provideHttpClient(withFetch())
   ],
   bootstrap: [AppComponent]
 })

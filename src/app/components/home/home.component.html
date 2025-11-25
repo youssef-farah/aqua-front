@@ -1,0 +1,112 @@
+<app-navbar></app-navbar>
+<app-offre></app-offre>
+<main class="home-root">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-slides">
+        <img *ngFor="let img of heroImages; let i=index"
+             [src]="img"
+             [class.visible]="i===currentImage"
+             class="hero-img" />
+        <div class="hero-overlay"></div>
+        <div class="container hero-content">
+          <div class="hero-text animate-hero">
+            <h1 class="hero-title">Votre Expert en
+              <span class="gradient-line">Piscines & Équipements</span>
+            </h1>
+            <p class="lead hero-subtitle">Depuis 27 ans, nous créons des espaces aquatiques d'exception</p>
+            <div class="hero-actions">
+              <a routerLink="/boutique" class="btn primary">
+                <span>Découvrir nos produits</span>
+                <i class="fa fa-arrow-right"></i>
+              </a>
+              <a routerLink="/contact" class="btn outline">
+                <span>Nous contacter</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scroll indicator -->
+      <div class="scroll-indicator">
+        <div class="scroll-mouse"></div>
+      </div>
+    </section>
+    
+  <div style="background: linear-gradient(135deg, #0787c775 0%, #058ccf85 100%); border-top: 3px solid rgb(255, 255, 255);">
+    <!-- Services -->
+    <section class="container section services-section">
+      <h2 class="section-title fade-in-up">Nos Services  <i class="fa-solid fa-arrows-to-circle"></i></h2>
+      <div class="cards">
+        <div class="card service-card" *ngFor="let s of services; let i=index" 
+             [style.animation-delay.ms]="i * 100">
+          <div class="card-icon-wrapper">
+            <i class="fa" [ngClass]="s.icon"></i>
+          </div>
+          <h3>{{ s.title }}</h3>
+          <p>{{ s.description }}</p>
+          <div class="card-hover-gradient"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+   
+  <div><!-- Stats with Counter Animation -->
+  <section #statsSection class="container section stats-section">
+  <h2 class="section-title fade-in-up">AquaLux en nombres <i class="fa-solid fa-chart-simple"></i></h2>
+
+  <div class="stats">
+    <div class="stat" *ngFor="let stat of statsData; let i=index"
+         [style.animation-delay.ms]="i * 100">
+      <div class="stat-circle">
+        <div class="num">{{ stat.current }}{{ stat.suffix }}</div>
+      </div>
+      <div class="lbl">{{ stat.label }}</div>
+    </div>
+  </div>
+</section>
+</div>
+    <!-- Testimonials Hero Carousel -->
+    <section class="section testimonials-section">
+      <div class="container">
+        
+        <div class="cards">
+          <h2 class="section-titlet fade-in-up">"Ce que disent nos clients  <i class="fa-solid fa-comment-dots"></i>"</h2>
+          <div class="card testimonial-card" 
+               *ngFor="let t of testimonials; let i=index"
+               [class.active]="i === currentTestimonial">
+            <div class="quote-icon">"</div>
+            <div class="rating">
+              <i class="fa fa-star" *ngFor="let r of [].constructor(t.rating)"></i>
+            </div>
+            <p class="quote">"{{ t.text }}"</p>
+            <p class="author">{{ t.name }}</p>
+            <div class="card-shine"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+  
+    
+  <div >
+    <!-- Partners -->
+    <section class="section muted partners-section">
+      <div class="container">
+        <h2 class="section-title fade-in-up">Nos Partenaires     <i class="fa-regular fa-handshake"></i></h2>
+        <div class="partners">
+          <div class="partner" *ngFor="let p of partners; let i=index"
+               [style.animation-delay.ms]="i * 80">
+            <div class="partner-frame">
+              <img [src]="p" alt="partner" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+
+<app-footer></app-footer>

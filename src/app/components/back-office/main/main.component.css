@@ -1,0 +1,30 @@
+.main_container {
+    display: flex;
+    height: 100%;
+}
+
+.nav {
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    width: auto;
+    z-index: 10;
+}
+
+.section {
+    margin-left: 240px;
+     width: 85%;
+    height: 100vh;
+    bottom: 0;
+    position: fixed;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    overflow-y: auto;
+}
+
+.section-expanded {
+    margin-left: 80px;
+    width: calc(100vw - 80px);
+}
+
+

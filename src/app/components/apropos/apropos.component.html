@@ -1,0 +1,12 @@
+<div *ngIf="isBrowser">
+  <h2>Dashboard</h2>
+
+  <label>Select Chart Type:</label>
+  <select [(ngModel)]="chartType" (change)="onTypeChange()">
+    <option value="bar">Bar</option>
+    <option value="pie">Pie</option>
+    <option value="line">Line</option>
+  </select>
+
+  <div echarts [options]="chartOption" class="echart" style="height: 400px; margin-top: 20px;"></div>
+</div>

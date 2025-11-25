@@ -1,0 +1,86 @@
+<div class="orders-container">
+
+  <h2 class="page-title">📦 Gestion des Commandes</h2>
+
+  <!-- Filters -->
+  <div class="filters">
+    
+    <!-- Search Text -->
+    <div class="filter-box">
+      <label>Recherche :</label>
+      <input
+        type="text"
+        placeholder="Rechercher par ID..."
+        [(ngModel)]="searchTerm"
+        (input)="search()"
+      />
+    </div>
+
+    <!-- Date Filter -->
+    <div class="filter-box">
+      <label>Filtrer par date :</label>
+      <input
+        type="date"
+        [(ngModel)]="filterDate"
+        (change)="search()"
+      />
+    </div>
+
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement des commandes...</div>
+
+  <div class="orders-table-container" *ngIf="!loading">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Créée le</th>
+          <th>Total</th>
+          <th>État</th>
+          <th>Articles</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let order of filteredOrders">
+          <td>{{ order.id }}</td>
+
+          <td>{{ order.createdAt | date:'shortDate' }}</td>
+
+          <td class="price">{{ order.total | currency:'TND' }}</td>
+
+          <td>
+            <select
+              [ngModel]="order.state"
+              (ngModelChange)="onStateChange(order, $event)"
+              class="state-select"
+            >
+              <option *ngFor="let s of orderStates" [value]="s">
+                {{ s }}
+              </option>
+            </select>
+          </td>
+
+          <td>
+            <div class="items-container">
+              <ul *ngIf="order.items && order.items.length > 0">
+                <li *ngFor="let item of order.items">
+                  <strong>{{ item.product.titre }}</strong>
+                  — Qty: {{ item.quantity }}
+                  — Unit: {{ item.unitPrice | currency:'TND' }}
+                  — Subtotal: {{ item.subTotal | currency:'TND' }}
+                </li>
+              </ul>
+
+              <p *ngIf="!order.items || order.items.length === 0" class="no-items">
+                Aucun article.
+              </p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

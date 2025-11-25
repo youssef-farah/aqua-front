@@ -1,0 +1,80 @@
+
+<app-navbar></app-navbar>
+<div class="container">
+  <h1 class="title">Mon Compte</h1>
+
+  <div class="card tabs-card">
+    <div class="tabs">
+      <button
+        [class.active]="activeTab === 'login'"
+        (click)="activeTab = 'login'"
+      >
+        Connexion
+      </button>
+      <button
+        [class.active]="activeTab === 'register'"
+        (click)="activeTab = 'register'"
+      >
+        Inscription
+      </button>
+    </div>
+
+    <!-- Connexion -->
+    <div *ngIf="activeTab === 'login'" class="tab-content">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" formControlName="email" required />
+        </div>
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" formControlName="password" required />
+        </div>
+        <button type="submit" [disabled]="loading">
+          {{ loading ? 'Connexion...' : 'Se connecter' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Inscription -->
+    <div *ngIf="activeTab === 'register'" class="tab-content">
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Nom</label>
+            <input formControlName="nom" required />
+          </div>
+          <div class="form-group">
+            <label>Prénom</label>
+            <input formControlName="prenom" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" formControlName="email" required />
+        </div>
+
+        <div class="form-group">
+          <label>Mot de passe</label>
+          <input type="password" formControlName="password" required />
+        </div>
+
+        <div class="form-group">
+          <label>Téléphone</label>
+          <input type="tel" formControlName="telephone" />
+        </div>
+
+        <div class="form-group">
+          <label>Adresse</label>
+          <input formControlName="adresse" />
+        </div>
+
+        <button type="submit" [disabled]="loading">
+          {{ loading ? 'Création...' : "S'inscrire" }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

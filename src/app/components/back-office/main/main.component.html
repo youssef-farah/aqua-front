@@ -1,0 +1,10 @@
+<div class="main_container">
+    <div class="nav">
+        <app-sidebar (sidebarToggled)="onSidebarToggled($event)"></app-sidebar>
+    </div>
+
+    <div class="section" 
+         [ngClass]="{ 'section-expanded': isSidebarCollapsed }">
+        <router-outlet></router-outlet>
+    </div>
+</div>

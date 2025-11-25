@@ -1,1 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
+/* Import Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+:root {
+    --app-font: 'Poppins', sans-serif;
+  }
+
+  html, body {
+    font-family: var(--app-font);
+    margin: 0;
+    padding: 0;
+  }

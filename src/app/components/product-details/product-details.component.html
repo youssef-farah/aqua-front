@@ -1,0 +1,80 @@
+<app-navbar></app-navbar>
+
+<div class="product-details-container">
+ 
+  <div class="product-wrapper" *ngIf="product">
+    <!-- Product Image - Left Side -->
+      <div class="product-image-section">
+      <div class="image-card">
+        <img
+          [src]="'http://localhost:8085/' + product.image"
+          alt="Product image"
+        />
+      </div>
+    </div>
+    <!-- Product Info - Right Side -->
+    <div class="product-info-section">
+      <!-- Title -->
+      <h1 class="product-title-row">
+  <span class="product-title">{{ product.titre | titlecase}}</span>
+  <span class="product-price">{{ product.prix }} TND</span>
+</h1>
+
+<p class="product-code"><strong>Code:</strong> {{ product.code }}</p>
+
+
+      <!-- Details -->
+   <div class="info-card">
+        <h3>Details :</h3>
+        <p>{{ product.description }}</p>
+      </div>
+
+    <div class="info-card">
+        <h3>Specifications :</h3>
+        <ul>
+          <li><strong>Lieu de production:</strong> {{ product.lieuDeProduction }}</li>
+          <li><strong>Garantie:</strong> {{ product.stock }}</li>
+          <li><strong>Stock disponible:</strong> {{ product.stock }} unités</li>
+        </ul>
+      </div>
+
+
+           <!-- Cart Section -->
+    <div class="cart-box">
+  <div class="quantity-selector">
+    <label>Qty:</label>
+    <button (click)="decrementQuantity()" class="qty-btn">-</button>
+    <input type="number" [(ngModel)]="quantity" min="1" [max]="product.stock" class="qty-input">
+    <button (click)="incrementQuantity()" class="qty-btn">+</button>
+  </div>
+
+  <button (click)="addToCart()" class="btn-primary add-to-cart-btn">
+    Add to Cart
+  </button>
+
+<button 
+  *ngIf="showbtn" 
+  class="btn-primary2 go-cart-btn" 
+  (click)="goToCart()">
+  Go to Cart
+</button>
+
+  <!-- Success Message -->
+
+</div>
+
+<div class="added-message" *ngIf="productAdded">
+  <span>✔ Product added to cart</span>
+</div>
+
+
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="!product" class="loading">
+    <p>Loading product details...</p>
+  </div>
+</div>
+
+<app-footer></app-footer>

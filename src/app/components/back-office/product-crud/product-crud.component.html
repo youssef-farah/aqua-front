@@ -1,0 +1,199 @@
+<div class="product-crud-container">
+  <!-- Notifications -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+<h2 style="text-align: center;">Gestion des Produits</h2>
+
+ 
+<div class="top-bar">
+  <input 
+    type="text"
+    class="search-input"
+    placeholder="Rechercher un produit..."
+    [(ngModel)]="searchTerm"
+    (input)="searchProducts()"
+  />
+
+  <button class="btn-primary" (click)="openProductForm()">
+    + Nouveau Produit
+  </button>
+</div>
+
+  <!-- Products Table -->
+  <div class="table-container">
+    <table class="data-table" >
+      <thead>
+        <tr style="border-bottom: 1px solid black;">
+          <th>Titre</th>
+          <th>Catégorie</th>
+          <th>Prix</th>
+          <th>Stock</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of filteredProducts" [class.out-of-stock]="product.stock === 0" style="border-bottom: 1px solid black;">
+          <td class="cell-title" style="border-bottom: 1px solid black;">
+            <div class="product-cell">
+              <img *ngIf="product.image" [src]="'http://localhost:8085/' +product.image" alt="{{product.titre}}" class="product-thumb"/>
+              <div>
+                <div class="product-title">{{ product.titre }}</div>
+                <div class="product-sub">{{ product.lieuDeProduction }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ getCategoryName(product.category?.id_category) }}</td>
+          <td>{{ product.prix }} TND</td>
+          <td>
+            <span [class.low-stock]="product.stock < 5">
+              {{ product.stock }}
+            </span>
+          </td>
+          <td class="cell-desc">{{ product.description }}</td>
+          <td class="actions-cell">
+            <button 
+              class="btn btn-sm btn-edit"
+              (click)="openProductForm(product)"
+              title="Modifier"
+            >
+              ✏️
+            </button>
+            <button 
+              class="btn btn-sm btn-delete"
+              (click)="deleteProduct(product.code)"
+              title="Supprimer"
+            >
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="filteredProducts.length === 0" class="empty-table">
+      <p>Aucun produit trouvé</p>
+    </div>
+  </div>
+</div>
+
+<!-- Product Form Modal -->
+<div *ngIf="showProductForm" class="modal-overlay" (click)="closeProductForm()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ editingProductId ? 'Modifier le produit' : 'Ajouter un produit' }}</h2>
+      <button class="close-btn" (click)="closeProductForm()">&times;</button>
+    </div>
+
+    <form class="form" (ngSubmit)="saveProduct()">
+            <div class="form-row">
+
+        <div class="form-group">
+        <label for="titre">Code *</label>
+        <input 
+          id="code"
+          type="text" 
+          [(ngModel)]="productFormData.code"
+          name="code"
+          placeholder="code du produit"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="titre">Titre *</label>
+        <input 
+          id="titre"
+          type="text" 
+          [(ngModel)]="productFormData.titre"
+          name="titre"
+          placeholder="Titre du produit"
+          required
+        />
+      </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description"
+          [(ngModel)]="productFormData.description"
+          name="description"
+          placeholder="Description du produit"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="prix">Prix *</label>
+          <input 
+            id="prix"
+            type="number" 
+            [(ngModel)]="productFormData.prix"
+            name="prix"
+            placeholder="0.00"
+            step="0.01"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="stock">Stock</label>
+          <input 
+            id="stock"
+            type="number" 
+            [(ngModel)]="productFormData.stock"
+            name="stock"
+            placeholder="0"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="lieuDeProduction">Lieu de Production</label>
+        <input 
+          id="lieuDeProduction"
+          type="text" 
+          [(ngModel)]="productFormData.lieuDeProduction"
+          name="lieuDeProduction"
+          placeholder="Lieu de production"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="category">Catégorie</label>
+        <select 
+          id="category"
+          [(ngModel)]="productFormData.category"
+          name="category"
+        >
+          <option [value]="null">Sélectionner une catégorie</option>
+          <option *ngFor="let cat of categories" [ngValue]="cat">
+            {{ cat.nom }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="image">URL de l'image</label>
+    <input type="file" (change)="onFileSelected($event)" />
+    <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview" width="100" />
+
+        
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeProductForm()">
+          Annuler
+        </button>
+        <button type="submit" class="btn btn-primary">
+          {{ editingProductId ? 'Mettre à jour' : 'Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
