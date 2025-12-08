@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, CanActivateFn, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 
@@ -8,13 +8,31 @@ import { AuthService } from '../services/auth.service';
 })
 export class AuthGuard implements CanActivate {
 
-  constructor(private authService: AuthService, private router: Router) {}
+ 
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  canActivate(): boolean {
-    if (this.authService.isLoggedIn()) {
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): boolean {
+    // Check if user is logged in
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/compte']);
+      return false;
+    }
+
+    // Check if user has ADMIN role
+    const userRole = this.authService.getUserRole();
+    
+    if (userRole?.toUpperCase() === 'ADMIN') {
       return true;
     } else {
-      this.router.navigate(['/login']);
+      // Not an admin, redirect to home page
+      console.warn('Access denied. Admin role required.');
+      this.router.navigate(['/']);
       return false;
     }
   }

@@ -1,7 +1,6 @@
 .site-footer {
     border-top: 1px solid #e6eef7;
     background: rgba(245, 250, 255, 0.9);
-    margin-top: 40px;
     padding-top: 30px;
     padding-bottom: 10px;
   }
@@ -35,7 +34,6 @@
   .newsletter-section {
   background: linear-gradient(135deg, #50bdef 0%, #06b6d4 100%);
   padding: 60px 20px;
-  margin-bottom: 40px;
 }
 
 .newsletter-container {

@@ -9,23 +9,29 @@ import { Router } from '@angular/router';
   selector: 'app-boutique',
   templateUrl: './boutique.component.html',
   styleUrl: './boutique.component.css'
-})
-export class BoutiqueComponent implements OnInit {
-onSortChange($event: Event) {
-throw new Error('Method not implemented.');
-}
-resetFilters() {
-throw new Error('Method not implemented.');
-}
-filterInStock($event: Event) {
-throw new Error('Method not implemented.');
-}
-filterByOrigin(arg0: string) {
-throw new Error('Method not implemented.');
-}
-filterByPrice(arg0: number,arg1: number) {
-throw new Error('Method not implemented.');
-}
+})export class BoutiqueComponent implements OnInit {
+  onSortChange($event: Event) {
+    throw new Error('Method not implemented.');
+  }
+  
+  resetFilters() {
+    this.selectedCategoryId = null;
+    this.searchTerm = '';
+    this.loadProducts();
+  }
+  
+  filterInStock($event: Event) {
+    throw new Error('Method not implemented.');
+  }
+  
+  filterByOrigin(arg0: string) {
+    throw new Error('Method not implemented.');
+  }
+  
+  filterByPrice(arg0: number, arg1: number) {
+    throw new Error('Method not implemented.');
+  }
+  
   products: Product[] = [];
   filteredProducts: Product[] = [];
   parentCategories: Category[] = [];
@@ -34,6 +40,7 @@ throw new Error('Method not implemented.');
   expandedCategories: Set<number> = new Set();
   categoryChildren: Map<number, Category[]> = new Map();
   loadingChildren: Set<number> = new Set();
+  isLoadingProducts: boolean = false;
 
   constructor(
     private productService: ProductServiceService,
@@ -47,13 +54,16 @@ throw new Error('Method not implemented.');
   }
 
   loadProducts(): void {
+    this.isLoadingProducts = true;
     this.productService.getAllProducts().subscribe({
       next: (data) => {
         this.products = data;
         this.filterProducts();
+        this.isLoadingProducts = false;
       },
       error: (error) => {
         console.error('Error loading products:', error);
+        this.isLoadingProducts = false;
       }
     });
   }
@@ -108,8 +118,33 @@ throw new Error('Method not implemented.');
 
   selectCategory(categoryId: number | null): void {
     this.selectedCategoryId = categoryId;
-    this.filterProducts();
+    
+    if (categoryId === null) {
+      // Load all products
+      this.loadProducts();
+    } else {
+      // Fetch products for the selected category
+      this.loadProductsByCategory(categoryId);
+    }
+    
     console.log('Selected category ID:', this.selectedCategoryId);
+  }
+
+  loadProductsByCategory(categoryId: number): void {
+    this.isLoadingProducts = true;
+    this.productService.getProductsByCategory(categoryId).subscribe({
+      next: (products) => {
+        this.products = products;
+        this.filterProducts();
+        this.isLoadingProducts = false;
+      },
+      error: (error) => {
+        console.error('Error loading products by category:', error);
+        this.products = [];
+        this.filterProducts();
+        this.isLoadingProducts = false;
+      }
+    });
   }
 
   onSearchChange(): void {
@@ -117,31 +152,21 @@ throw new Error('Method not implemented.');
   }
 
   filterProducts(): void {
+    // When a category is selected, products are already filtered by the backend
+    // So we only need to apply the search filter
     this.filteredProducts = this.products.filter(product => {
       const matchesSearch = !this.searchTerm || 
         product.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (product.description && product.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
-      
-     const matchesCategory = this.selectedCategoryId === null || 
-      product.category?.id_category === 1;
-    //console.log('Selected category ID:', this.selectedCategoryId);
-    console.log(matchesCategory);
 
-      return matchesSearch && matchesCategory;
+      return matchesSearch;
     });
   }
-
-
-
-
-
 
   onDetailsClick(productId: number): void {
     this.router.navigate(['/product-details', productId]);
   }
 
-
-  
   addToCart(product: Product): void {
     console.log('Adding to cart:', product);
     // Implement cart logic here

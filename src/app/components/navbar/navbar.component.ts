@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -6,6 +7,10 @@ import { Component } from '@angular/core';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
+
+  constructor(private authService: AuthService) {
+
+  }
   navLinks = [
     { to: '/', label: 'Accueil' },
     { to: '/boutique', label: 'Boutique' },
@@ -16,4 +21,25 @@ export class NavbarComponent {
   ];
 
   totalItems = 0;
+
+
+
+logout(): void {
+  this.authService.logout().subscribe({
+    next: () => {
+      // Successfully logged out
+    },
+    error: (error) => {
+      console.error('Logout error:', error);
+      // Even if backend logout fails, clear client-side data
+      this.authService.logoutClientSide();
+    }
+  });
+}
+
+
+
+
+
+
 }

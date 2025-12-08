@@ -32,6 +32,7 @@ filterDate: string = ""; // new filter
         this.orders = data;
         this.filteredOrders = [...data];
         this.loading = false;
+        console.log('Orders loaded:', data);
       },
       error: (err) => {
         console.error('Failed to load orders', err);

@@ -11,9 +11,9 @@ export class ProductServiceService {
 
   constructor(private http: HttpClient) {}
 
-  createProduct(product: Product): Observable<Product> {
-    return this.http.post<Product>(this.apiUrl, product);
-  }
+ createProduct(product: Product): Observable<Product> {
+  return this.http.post<Product>(this.apiUrl, product, { withCredentials: true });
+}
 
   getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);
@@ -24,10 +24,14 @@ export class ProductServiceService {
   }
 
   updateProduct(code: number, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${code}`, product);
+    return this.http.put<Product>(`${this.apiUrl}/${code}`, product, { withCredentials: true });
   }
 
   deleteProduct(code: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${code}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${code}`, { withCredentials: true });
+  }
+
+   getProductsByCategory(categoryId: number): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/category/${categoryId}`);
   }
 }

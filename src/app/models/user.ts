@@ -1,3 +1,4 @@
+import { Adresse } from "./adresse";
 import { Category } from "./category";
 import { Product } from "./product";
 
@@ -11,7 +12,7 @@ export class User {
         public nom: string,
         public prenom: string,
         public telephone: number,
-        public adresse: string,
+        public adresse: Adresse,
         public categories?: Category[],
         public products?: Product[]
     ) {}

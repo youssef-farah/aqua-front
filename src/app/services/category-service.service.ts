@@ -12,7 +12,7 @@ export class CategoryServiceService {
   constructor(private http: HttpClient) {}
 
   createCategory(category: Category): Observable<Category> {
-    return this.http.post<Category>(this.apiUrl, category);
+    return this.http.post<Category>(this.apiUrl, category,{ withCredentials: true });
   }
 
   getAllCategories(): Observable<Category[]> {
@@ -23,12 +23,12 @@ export class CategoryServiceService {
     return this.http.get<Category>(`${this.apiUrl}/${id}`);
   }
 
-  updateCategory(id: number, category: Category): Observable<Category> {
-    return this.http.put<Category>(`${this.apiUrl}/${id}`, category);
-  }
+    updateCategory(id: number, category: Category): Observable<Category> {
+      return this.http.put<Category>(`${this.apiUrl}/${id}`, category,{ withCredentials: true });
+    }
 
   deleteCategory(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}` ,{ withCredentials: true });
   }
 
   getAllParentCategories(): Observable<Category[]> {
@@ -38,4 +38,7 @@ export class CategoryServiceService {
   getChildren(id: number): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/children/${id}`);
   }
+
+
+  
 }

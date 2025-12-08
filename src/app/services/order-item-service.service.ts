@@ -13,7 +13,7 @@ export class OrderItemServiceService {
   constructor(private http: HttpClient) {}
 
   create(orderItem: OrderItem): Observable<OrderItem> {
-    return this.http.post<OrderItem>(this.apiUrl, orderItem);
+    return this.http.post<OrderItem>(this.apiUrl, orderItem, { withCredentials: true });
   }
 
   getAll(): Observable<OrderItem[]> {
@@ -25,10 +25,10 @@ export class OrderItemServiceService {
   }
 
   update(id: number, orderItem: OrderItem): Observable<OrderItem> {
-    return this.http.put<OrderItem>(`${this.apiUrl}/${id}`, orderItem);
+    return this.http.put<OrderItem>(`${this.apiUrl}/${id}`, orderItem ,{ withCredentials: true });
   }
 
   delete(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}` ,{ withCredentials: true });
   }
 }

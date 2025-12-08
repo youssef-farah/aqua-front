@@ -1,79 +1,329 @@
-
 <app-navbar></app-navbar>
 <div class="container">
   <h1 class="title">Mon Compte</h1>
 
-  <div class="card tabs-card">
-    <div class="tabs">
-      <button
-        [class.active]="activeTab === 'login'"
-        (click)="activeTab = 'login'"
-      >
-        Connexion
-      </button>
-      <button
-        [class.active]="activeTab === 'register'"
-        (click)="activeTab = 'register'"
-      >
-        Inscription
-      </button>
-    </div>
-
-    <!-- Connexion -->
-    <div *ngIf="activeTab === 'login'" class="tab-content">
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" formControlName="email" required />
+  <!-- Logged In View -->
+  <div *ngIf="isLoggedIn" class="account-details-section">
+    <div class="card account-card">
+      <div class="account-header">
+        <div class="account-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
         </div>
-        <div class="form-group">
-          <label>Mot de passe</label>
-          <input type="password" formControlName="password" required />
-        </div>
-        <button type="submit" [disabled]="loading">
-          {{ loading ? 'Connexion...' : 'Se connecter' }}
-        </button>
-      </form>
-    </div>
+        <h2>Mes Informations</h2>
+        <p class="account-subtitle">Consultez et modifiez vos informations personnelles</p>
+      </div>
 
-    <!-- Inscription -->
-    <div *ngIf="activeTab === 'register'" class="tab-content">
-      <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Nom</label>
-            <input formControlName="nom" required />
+      <!-- Success/Error Messages -->
+      <div *ngIf="errorMessage" class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        {{ successMessage }}
+      </div>
+
+      <!-- Account Information Form -->
+      <form [formGroup]="accountForm" (ngSubmit)="onUpdateAccount()">
+        
+        <!-- Account Status (Read-only) -->
+        <div class="info-section">
+          <h3 class="section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Informations du compte
+          </h3>
+          
+          <div class="read-only-fields">
+            <div class="info-display">
+              <span class="info-label">Email</span>
+              <span class="info-value">{{ currentUser?.mail || 'Non disponible' }}</span>
+            </div>
+            
+            <div class="info-display">
+              <span class="info-label">Statut</span>
+              <span class="status-active">
+                <span class="status-dot"></span>
+                Compte Actif
+              </span>
+            </div>
           </div>
+        </div>
+
+        <!-- Personal Information (Editable) -->
+        <div class="info-section">
+          <h3 class="section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Informations personnelles
+          </h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nom">Nom *</label>
+              <input 
+                id="nom"
+                type="text"
+                formControlName="nom" 
+                [class.error]="shouldShowError('nom')"
+                placeholder="Votre nom"
+              />
+              <span *ngIf="shouldShowError('nom')" class="error-message">
+                {{ getErrorMessage('nom') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="prenom">Prénom *</label>
+              <input 
+                id="prenom"
+                type="text"
+                formControlName="prenom" 
+                [class.error]="shouldShowError('prenom')"
+                placeholder="Votre prénom" 
+              />
+              <span *ngIf="shouldShowError('prenom')" class="error-message">
+                {{ getErrorMessage('prenom') }}
+              </span>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>Prénom</label>
-            <input formControlName="prenom" required />
+            <label for="telephone">Téléphone</label>
+            <input 
+              id="telephone"
+              type="tel"
+              formControlName="telephone" 
+              [class.error]="shouldShowError('telephone')"
+              placeholder="+216 XX XXX XXX"
+            />
+            <span *ngIf="shouldShowError('telephone')" class="error-message">
+{{ currentUser?.telephone || 'Non disponible' }}            </span>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" formControlName="email" required />
+        <!-- Address Information (Editable) -->
+        <div class="info-section" formGroupName="adresse">
+          <h3 class="section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Adresse
+          </h3>
+
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label for="street">Rue</label>
+              <input 
+                id="street"
+                type="text"
+                formControlName="street" 
+                placeholder="Nom de la rue"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="houseNumber">Numéro</label>
+              <input 
+                id="houseNumber"
+                type="text"
+                formControlName="houseNumber" 
+                placeholder="N°"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">Ville</label>
+              <input 
+                id="city"
+                type="text"
+                formControlName="city" 
+                placeholder="Ville"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="postalCode">Code postal</label>
+              <input 
+                id="postalCode"
+                type="text"
+                formControlName="postalCode" 
+                placeholder="Code postal"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="country">Pays</label>
+            <input 
+              id="country"
+              type="text"
+              formControlName="country" 
+              placeholder="Pays"
+            />
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Mot de passe</label>
-          <input type="password" formControlName="password" required />
-        </div>
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn-primary" 
+            [disabled]="updating || accountForm.invalid"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            {{ updating ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+          </button>
 
-        <div class="form-group">
-          <label>Téléphone</label>
-          <input type="tel" formControlName="telephone" />
+          <button 
+            type="button"
+            class="btn-secondary" 
+            (click)="router.navigate(['/'])"
+            [disabled]="updating"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            Retour à l'accueil
+          </button>
         </div>
-
-        <div class="form-group">
-          <label>Adresse</label>
-          <input formControlName="adresse" />
-        </div>
-
-        <button type="submit" [disabled]="loading">
-          {{ loading ? 'Création...' : "S'inscrire" }}
-        </button>
       </form>
+
+      <!-- Logout Section -->
+      <div class="logout-section">
+        <button 
+          class="btn-logout" 
+          (click)="onLogout()" 
+          [disabled]="logoutLoading"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          {{ logoutLoading ? 'Déconnexion...' : 'Se déconnecter' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login/Register View (Keep existing code) -->
+  <div *ngIf="!isLoggedIn" class="auth-section">
+    <div class="card tabs-card">
+      <div class="tabs">
+        <button
+          [class.active]="activeTab === 'login'"
+          (click)="activeTab = 'login'; errorMessage = ''; successMessage = ''"
+        >
+          Connexion
+        </button>
+        <button
+          [class.active]="activeTab === 'register'"
+          (click)="activeTab = 'register'; errorMessage = ''; successMessage = ''"
+        >
+          Inscription
+        </button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <!-- Connexion -->
+      <div *ngIf="activeTab === 'login'" class="tab-content">
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          <div class="form-group">
+            <label>Email *</label>
+            <input 
+              type="email" 
+              formControlName="email" 
+              placeholder="votre@email.com"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Mot de passe *</label>
+            <input 
+              type="password" 
+              formControlName="password" 
+              placeholder="••••••••"
+            />
+          </div>
+          
+          <button type="submit" [disabled]="loading || loginForm.invalid">
+            {{ loading ? 'Connexion...' : 'Se connecter' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Inscription -->
+      <div *ngIf="activeTab === 'register'" class="tab-content">
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+          <div class="grid-2">
+            <div class="form-group">
+              <label>Nom *</label>
+              <input formControlName="nom" placeholder="Nom" />
+            </div>
+            
+            <div class="form-group">
+              <label>Prénom *</label>
+              <input formControlName="prenom" placeholder="Prénom" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" formControlName="email" placeholder="votre@email.com" />
+          </div>
+
+          <div class="form-group">
+            <label>Mot de passe *</label>
+            <input type="password" formControlName="password" placeholder="••••••••" />
+          </div>
+
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" formControlName="telephone" placeholder="+216 XX XXX XXX" />
+          </div>
+
+          <div class="form-group">
+            <label>Adresse</label>
+            <input formControlName="adresse" placeholder="Votre adresse" />
+          </div>
+
+          <button type="submit" [disabled]="loading || registerForm.invalid">
+            {{ loading ? 'Création...' : "S'inscrire" }}
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </div>

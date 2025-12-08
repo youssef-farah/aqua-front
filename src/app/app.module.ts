@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-import { HTTP_INTERCEPTORS, provideHttpClient, withFetch } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -21,6 +21,7 @@ import { OffreComponent } from './components/offre/offre.component';
 import { OrdersComponent } from './components/back-office/orders/orders.component';
 import { SidebarComponent } from './components/back-office/sidebar/sidebar.component';
 import { MainComponent } from './components/back-office/main/main.component';
+import { AuthInterceptor } from './Interceptors/auth-interceptor';
 
 
 @NgModule({
@@ -55,7 +56,12 @@ import { MainComponent } from './components/back-office/main/main.component';
   ],
   providers: [
     provideClientHydration(),
-    provideHttpClient(withFetch())
+    provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

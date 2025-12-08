@@ -12,7 +12,7 @@ export class OffreService {
   constructor(private http: HttpClient) {}
 
   create(offre: Offre): Observable<Offre> {
-    return this.http.post<Offre>(this.apiUrl, offre);
+    return this.http.post<Offre>(this.apiUrl, offre ,{ withCredentials: true });
   }
 
   getAll(): Observable<Offre[]> {
@@ -24,10 +24,10 @@ export class OffreService {
   }
 
   update(id: number, order: Offre): Observable<Offre> {
-    return this.http.put<Offre>(`${this.apiUrl}/${id}`, order);
+    return this.http.put<Offre>(`${this.apiUrl}/${id}`, order ,{ withCredentials: true });
   }
 
   delete(id: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}` ,{ withCredentials: true });
   }
 }

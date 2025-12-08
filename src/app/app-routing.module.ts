@@ -29,7 +29,7 @@ const routes: Routes = [
   {path:'panier', component:CartComponent},
   {path:'produits', component:ProductCrudComponent},
   {path:'orders', component:OrdersComponent},
-  {path:"main",component:MainComponent, children:[
+  {path:"main",component:MainComponent,  canActivate: [AuthGuard],children:[
     { path: "", redirectTo: "dashboard", pathMatch: "full" },
     {path:"dashboard",component:DashboardComponent},
     {path:"produits",component:ProductCrudComponent},
