@@ -9,8 +9,7 @@ import { UserServiceService } from '../../services/user-service.service';
   selector: 'app-compte',
   templateUrl: './compte.component.html',
   styleUrl: './compte.component.css'
-})
-export class CompteComponent implements OnInit {
+})export class CompteComponent implements OnInit {
   activeTab: 'login' | 'register' = 'login';
   loginForm: FormGroup;
   registerForm: FormGroup;
@@ -25,6 +24,8 @@ export class CompteComponent implements OnInit {
   
   isLoggedIn = false;
   currentUser: any = null;
+  currentUser2: any = null;
+
 
   constructor(
     private fb: FormBuilder,
@@ -68,8 +69,7 @@ export class CompteComponent implements OnInit {
     
     if (this.isLoggedIn) {
       this.currentUser = this.authService.getFullUser();
-      console.log(this.currentUser.id_user);
-      this.populateAccountForm();
+      this.loadUserData();
     }
 
     // Subscribe to login status changes
@@ -77,29 +77,53 @@ export class CompteComponent implements OnInit {
       this.isLoggedIn = loggedIn;
       if (loggedIn) {
         this.currentUser = this.authService.getFullUser();
-        this.populateAccountForm();
+        this.loadUserData();
       } else {
         this.currentUser = null;
+        this.currentUser2 = null;
         this.accountForm.reset();
       }
     });
   }
 
   /**
+   * Load full user data from backend
+   */
+  private loadUserData(): void {
+    if (this.currentUser && this.currentUser.id_user) {
+      this.userService.getUserById(this.currentUser.id_user).subscribe({
+        next: (data) => {
+          this.currentUser2 = data;
+          console.log('Full user data:', this.currentUser2);
+          this.populateAccountForm();
+        },
+        error: (error) => {
+          console.error('Error loading user data:', error);
+          // Fallback to currentUser if API fails
+          this.populateAccountForm();
+        }
+      });
+    }
+  }
+
+  /**
    * Populate account form with current user data
    */
   private populateAccountForm(): void {
-    if (this.currentUser) {
+    // Use currentUser2 (full data) if available, otherwise fallback to currentUser
+    const userData = this.currentUser2 || this.currentUser;
+    
+    if (userData) {
       this.accountForm.patchValue({
-        nom: this.currentUser.nom || '',
-        prenom: this.currentUser.prenom || '',
-        telephone: this.currentUser.telephone || '',
+        nom: userData.nom || '',
+        prenom: userData.prenom || '',
+        telephone: userData.telephone || '',
         adresse: {
-          street: this.currentUser.adresse?.street || '',
-          houseNumber: this.currentUser.adresse?.houseNumber || '',
-          city: this.currentUser.adresse?.city || '',
-          postalCode: this.currentUser.adresse?.postalCode || '',
-          country: this.currentUser.adresse?.country || ''
+          street: userData.adresse?.street || '',
+          houseNumber: userData.adresse?.houseNumber || '',
+          city: userData.adresse?.city || '',
+          postalCode: userData.adresse?.postalCode || '',
+          country: userData.adresse?.country || ''
         }
       });
     }
@@ -144,11 +168,9 @@ export class CompteComponent implements OnInit {
         this.updating = false;
         this.successMessage = "Vos informations ont été mises à jour avec succès !";
         
-        // Update current user with response
+        // Update both user objects
         this.currentUser = { ...this.currentUser, ...response };
-        
-        // Update auth service storage
-        //this.authService.updateStoredUser(response);
+        this.currentUser2 = { ...this.currentUser2, ...response };
         
         setTimeout(() => {
           this.successMessage = '';
@@ -196,7 +218,7 @@ export class CompteComponent implements OnInit {
         this.successMessage = 'Connexion réussie !';
         this.isLoggedIn = true;
         this.currentUser = this.authService.getCurrentUser();
-        this.populateAccountForm();
+        this.loadUserData();
         
         this.loginForm.reset();
         
@@ -249,7 +271,7 @@ export class CompteComponent implements OnInit {
         this.successMessage = 'Compte créé avec succès ! Redirection...';
         this.isLoggedIn = true;
         this.currentUser = this.authService.getCurrentUser();
-        this.populateAccountForm();
+        this.loadUserData();
         
         this.registerForm.reset();
         
@@ -284,6 +306,7 @@ export class CompteComponent implements OnInit {
         this.successMessage = 'Déconnexion réussie !';
         this.isLoggedIn = false;
         this.currentUser = null;
+        this.currentUser2 = null;
         this.accountForm.reset();
         
         setTimeout(() => {
@@ -297,6 +320,7 @@ export class CompteComponent implements OnInit {
         this.authService.logoutClientSide();
         this.isLoggedIn = false;
         this.currentUser = null;
+        this.currentUser2 = null;
         this.accountForm.reset();
         this.errorMessage = 'Déconnexion effectuée (erreur serveur ignorée)';
       }

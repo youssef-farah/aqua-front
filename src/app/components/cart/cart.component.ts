@@ -11,6 +11,7 @@ import { Product } from '../../models/product';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user';
+import { UserServiceService } from '../../services/user-service.service';
 
 @Component({
   selector: 'app-cart',
@@ -30,7 +31,7 @@ export class CartComponent implements OnInit {
     private orderItemService: OrderItemServiceService,
     private pr: ProductServiceService,
     private router: Router, 
-    private authService: AuthService
+    private authService: AuthService,private userService:UserServiceService
   ) {}
 
   ngOnInit(): void {
@@ -60,22 +61,42 @@ export class CartComponent implements OnInit {
     return this.authService.isLoggedIn();
   }
 
-  onCheckout(): void {
-    if (this.cart.length === 0) {
-      alert('Your cart is empty!');
-      return;
-    }
-
-    // Check if user is logged in
-    if (!this.isUserLoggedIn()) {
-      this.showLoginModal = true;
-      return;
-    }
-
-    // Load user data and show confirmation modal
-    this.currentUser = this.authService.getFullUser();
-    this.showConfirmationModal = true;
+onCheckout(): void {
+  if (this.cart.length === 0) {
+    alert('Your cart is empty!');
+    return;
   }
+
+  // Check if user is logged in
+  if (!this.isUserLoggedIn()) {
+    this.showLoginModal = true;
+    return;
+  }
+
+  // Get user ID from auth service
+  const tempUser = this.authService.getFullUser();
+  
+  if (!tempUser || !tempUser.id_user) {
+    console.error('User ID not found');
+    this.showLoginModal = true;
+    return;
+  }
+
+  // Load full user data from backend before showing confirmation modal
+  this.userService.getUserById(tempUser.id_user).subscribe({
+    next: (data) => {
+      this.currentUser = data;
+      console.log('Full user data loaded for checkout:', this.currentUser);
+      this.showConfirmationModal = true;
+    },
+    error: (error) => {
+      console.error('Error loading user data:', error);
+      // Fallback to auth service data if API fails
+      this.currentUser = tempUser;
+      this.showConfirmationModal = true;
+    }
+  });
+}
 
   confirmOrder(): void {
     this.showConfirmationModal = false;

@@ -22,6 +22,8 @@ import { OrdersComponent } from './components/back-office/orders/orders.componen
 import { SidebarComponent } from './components/back-office/sidebar/sidebar.component';
 import { MainComponent } from './components/back-office/main/main.component';
 import { AuthInterceptor } from './Interceptors/auth-interceptor';
+import { ServicesComponent } from './components/services/services.component';
+import { OffresComponent } from './components/back-office/offres/offres.component';
 
 
 @NgModule({
@@ -42,7 +44,9 @@ import { AuthInterceptor } from './Interceptors/auth-interceptor';
     OffreComponent,
     OrdersComponent,
     SidebarComponent,
-    MainComponent
+    MainComponent,
+    ServicesComponent,
+    OffresComponent
   ],
   imports: [
     BrowserModule,

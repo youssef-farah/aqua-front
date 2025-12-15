@@ -15,6 +15,8 @@ import { ProductCrudComponent } from './components/back-office/product-crud/prod
 import { CategoryCrudComponent } from './components/back-office/category-crud/category-crud.component';
 import { OrdersComponent } from './components/back-office/orders/orders.component';
 import { MainComponent } from './components/back-office/main/main.component';
+import { ServicesComponent } from './components/services/services.component';
+import { OffresComponent } from './components/back-office/offres/offres.component';
 const routes: Routes = [
 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -28,6 +30,7 @@ const routes: Routes = [
   {path: 'product-details/:id', component: ProductDetailsComponent },
   {path:'panier', component:CartComponent},
   {path:'produits', component:ProductCrudComponent},
+  {path:'services',component: ServicesComponent},
   {path:'orders', component:OrdersComponent},
   {path:"main",component:MainComponent,  canActivate: [AuthGuard],children:[
     { path: "", redirectTo: "dashboard", pathMatch: "full" },
@@ -35,6 +38,8 @@ const routes: Routes = [
     {path:"produits",component:ProductCrudComponent},
     {path:'categories', component:CategoryCrudComponent},
     {path:'orders', component:OrdersComponent},
+    {path:'offres', component:OffresComponent},
+
 
    // {path:"dashboard/statistics",component:DbsStatisticsComponent},
 

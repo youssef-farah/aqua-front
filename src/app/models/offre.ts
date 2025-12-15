@@ -5,6 +5,7 @@ export class Offre {
         public id: number,
         public titre: string,
         public description: string,
-        public imageUrl : string,
-    public prix : number) {}
+        public prix : number,
+        public imageUrl?: string
+    ) {}
 }

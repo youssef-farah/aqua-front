@@ -103,7 +103,7 @@
       </div>
       <div class="detail-row">
         <span class="detail-label">Address:</span>
-        <span class="detail-value">{{ currentUser?.adresse || 'No address provided' }}</span>
+        <span class="detail-value">{{ currentUser?.adresse.street || 'No address provided' }}</span>
       </div>
       
       <button class="btn-update-profile" (click)="goToProfile()">

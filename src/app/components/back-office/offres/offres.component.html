@@ -1,0 +1,166 @@
+<div class="offres-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <h1 class="title">Gestion des Offres</h1>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Nouvelle Offre
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div class="alert alert-error" *ngIf="error">
+    <div class="alert-content">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+      <span>{{ error }}</span>
+    </div>
+    <button class="alert-close" (click)="dismissError()">×</button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement des offres...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && offres.length === 0">
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+    </svg>
+    <h3>Aucune offre disponible</h3>
+    <p>Commencez par créer votre première offre</p>
+    <button class="btn btn-primary" (click)="openCreateModal()">Créer une offre</button>
+  </div>
+
+  <!-- Offres Grid -->
+  <div class="offres-grid" *ngIf="!loading && offres.length > 0">
+    <div class="offre-card" *ngFor="let offre of offres">
+      <div class="card-image">
+        <img 
+        [src]="'http://localhost:8085/' +offre.imageUrl"
+             [alt]="offre.titre"
+        >
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">{{ offre.titre }}</h3>
+        <p class="card-description">{{ offre.description }}</p>
+        <div class="card-price">{{ offre.prix | number:'1.2-2' }} TND</div>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-icon btn-edit" (click)="openEditModal(offre)" title="Modifier">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </button>
+        <button class="btn btn-icon btn-delete" (click)="openDeleteModal(offre)" title="Supprimer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Modal -->
+  <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Nouvelle Offre</h2>
+        <button class="modal-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="create-titre">Titre *</label>
+          <input type="text" id="create-titre" [(ngModel)]="formData.titre" placeholder="Entrez le titre de l'offre">
+        </div>
+        <div class="form-group">
+          <label for="create-description">Description *</label>
+          <textarea id="create-description" [(ngModel)]="formData.description" rows="4" placeholder="Décrivez votre offre"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="create-prix">Prix (TND) *</label>
+          <input type="number" id="create-prix" [(ngModel)]="formData.prix" step="0.01" min="0" placeholder="0.00">
+        </div>
+       
+
+          <div class="form-group">
+        <label for="create-image">URL de l'image</label>
+    <input type="file" id="create-image" (change)="onFileSelected($event)" [(ngModel)]="formData.imageUrl" />
+    <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview" width="100" />
+
+        
+      </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModals()">Annuler</button>
+        <button class="btn btn-primary" (click)="createOffre()" [disabled]="!isFormValid()">Créer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeModals()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Modifier l'Offre</h2>
+        <button class="modal-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="edit-titre">Titre *</label>
+          <input type="text" id="edit-titre" [(ngModel)]="formData.titre" placeholder="Entrez le titre de l'offre">
+        </div>
+        <div class="form-group">
+          <label for="edit-description">Description *</label>
+          <textarea id="edit-description" [(ngModel)]="formData.description" rows="4" placeholder="Décrivez votre offre"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="edit-prix">Prix (TND) *</label>
+          <input type="number" id="edit-prix" [(ngModel)]="formData.prix" step="0.01" min="0" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="edit-image">URL de l'image</label>
+          <input type="url" id="edit-image" [(ngModel)]="formData.imageUrl" placeholder="https://exemple.com/image.jpg">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModals()">Annuler</button>
+        <button class="btn btn-primary" (click)="updateOffre()" [disabled]="!isFormValid()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeModals()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Confirmer la suppression</h2>
+        <button class="modal-close" (click)="closeModals()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer l'offre <strong>{{ currentOffre?.titre }}</strong> ?</p>
+        <p class="warning-text">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModals()">Annuler</button>
+        <button class="btn btn-danger" (click)="deleteOffre()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>

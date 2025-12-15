@@ -12,6 +12,7 @@ export class OffreService {
   constructor(private http: HttpClient) {}
 
   create(offre: Offre): Observable<Offre> {
+    console.log('Creating offre:', offre);
     return this.http.post<Offre>(this.apiUrl, offre ,{ withCredentials: true });
   }
 

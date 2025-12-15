@@ -78,6 +78,7 @@ export class CategoryCrudComponent implements OnInit {
   createCategory(): void {
     this.categoryService.createCategory(this.categoryFormData).subscribe({
       next: () => {
+        console.log(this.categoryFormData);
         this.showSuccess('Catégorie créée avec succès');
         this.closeCategoryForm();
         this.loadCategories();

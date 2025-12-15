@@ -10,15 +10,20 @@ import { Router } from '@angular/router';
   templateUrl: './boutique.component.html',
   styleUrl: './boutique.component.css'
 })export class BoutiqueComponent implements OnInit {
-  onSortChange($event: Event) {
-    throw new Error('Method not implemented.');
-  }
-  
-  resetFilters() {
-    this.selectedCategoryId = null;
-    this.searchTerm = '';
-    this.loadProducts();
-  }
+
+
+
+onSortChange($event: Event) {
+  const selectElement = $event.target as HTMLSelectElement;
+  this.currentSort = selectElement.value;
+  this.sortProducts();
+}
+ resetFilters() {
+  this.selectedCategoryId = null;
+  this.searchTerm = '';
+  this.currentSort = 'default'; // Add this line
+  this.loadProducts();
+}
   
   filterInStock($event: Event) {
     throw new Error('Method not implemented.');
@@ -41,6 +46,8 @@ import { Router } from '@angular/router';
   categoryChildren: Map<number, Category[]> = new Map();
   loadingChildren: Set<number> = new Set();
   isLoadingProducts: boolean = false;
+  currentSort: string = 'default'; // Add this line
+
 
   constructor(
     private productService: ProductServiceService,
@@ -151,17 +158,44 @@ import { Router } from '@angular/router';
     this.filterProducts();
   }
 
-  filterProducts(): void {
-    // When a category is selected, products are already filtered by the backend
-    // So we only need to apply the search filter
-    this.filteredProducts = this.products.filter(product => {
-      const matchesSearch = !this.searchTerm || 
-        product.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (product.description && product.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
+filterProducts(): void {
+  // When a category is selected, products are already filtered by the backend
+  // So we only need to apply the search filter
+  this.filteredProducts = this.products.filter(product => {
+    const matchesSearch = !this.searchTerm || 
+      product.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      (product.description && product.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
 
-      return matchesSearch;
-    });
+    return matchesSearch;
+  });
+  
+  // Apply sorting after filtering
+  this.sortProducts(); // Add this line
+}
+
+  sortProducts(): void {
+  switch (this.currentSort) {
+    case 'asc':
+      this.filteredProducts.sort((a, b) => a.prix - b.prix);
+      break;
+    case 'desc':
+      this.filteredProducts.sort((a, b) => b.prix - a.prix);
+      break;
+    case 'name':
+      this.filteredProducts.sort((a, b) => a.titre.localeCompare(b.titre));
+      break;
+    case 'pop':
+      // Assuming you have a popularity field like 'sales' or 'views'
+      // Adjust this based on your Product model
+     // this.filteredProducts.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+      break;
+    case 'default':
+    default:
+      // Restore original order by re-filtering
+      this.filterProducts();
+      break;
   }
+}
 
   onDetailsClick(productId: number): void {
     this.router.navigate(['/product-details', productId]);
