@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Order,OrderState } from '../../../models/order';
 import { OrderServiceService } from '../../../services/order-service.service';
+import { ProductServiceService } from '../../../services/product-service.service';
+import { OrderItem } from '../../../models/order-item';
 
 @Component({
   selector: 'app-orders',
@@ -18,7 +20,8 @@ filterDate: string = ""; // new filter
 
   orderStates = Object.values(OrderState); // ['CREATED', ...]
 
-  constructor(private orderService: OrderServiceService) {}
+  constructor(private orderService: OrderServiceService,  private productService: ProductServiceService // Add this
+) {}
 
   ngOnInit(): void {
     this.loadOrders();
@@ -60,19 +63,45 @@ search(): void {
   });
 }
 
-  onStateChange(order: Order, newState: OrderState): void {
-    const updatedOrder: Order = { ...order, state: newState };
+onStateChange(order: Order, newState: OrderState): void {
+  const updatedOrder: Order = { ...order, state: newState };
 
-    this.orderService.update(order.id!, updatedOrder).subscribe({
-      next: () => {
-        order.state = newState; // update UI instantly
+  this.orderService.update(order.id!, updatedOrder).subscribe({
+    next: () => {
+      order.state = newState; // update UI instantly
+      
+      // If order is delivered, update stock for all products
+      if (newState === OrderState.DELIVERED && order.items && order.items.length > 0) {
+        this.updateProductsStock(order.items);
+      }
+    },
+    error: (err) => {
+      console.error('Order update failed', err);
+      alert('Failed to update order!');
+    }
+  });
+}
+
+
+private updateProductsStock(orderItems: OrderItem[]): void {
+  orderItems.forEach(item => {
+    const newStock = item.product.stock - item.quantity;
+    
+    this.productService.updateProductStock(item.product.code, newStock).subscribe({
+      next: (updatedProduct) => {
+        console.log(`Stock updated for product ${updatedProduct.code}: ${updatedProduct.stock}`);
+        // Update the product stock in the order item to reflect the change
+        item.product.stock = updatedProduct.stock;
+        this.loadOrders(); // Refresh orders to reflect updated stock
       },
       error: (err) => {
-        console.error('Order update failed', err);
-        alert('Failed to update order!');
+        console.error(`Failed to update stock for product ${item.product.code}`, err);
+        alert(`Failed to update stock for product: ${item.product.titre}`);
       }
     });
-  }
+  });
+}
+
 
   toggleItems(order: any) {
     order.showItems = !order.showItems;

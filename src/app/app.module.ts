@@ -24,6 +24,9 @@ import { MainComponent } from './components/back-office/main/main.component';
 import { AuthInterceptor } from './Interceptors/auth-interceptor';
 import { ServicesComponent } from './components/services/services.component';
 import { OffresComponent } from './components/back-office/offres/offres.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { OffresboutiqueComponent } from './components/offresboutique/offresboutique.component';
 
 
 @NgModule({
@@ -46,7 +49,10 @@ import { OffresComponent } from './components/back-office/offres/offres.componen
     SidebarComponent,
     MainComponent,
     ServicesComponent,
-    OffresComponent
+    OffresComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
+    OffresboutiqueComponent
   ],
   imports: [
     BrowserModule,

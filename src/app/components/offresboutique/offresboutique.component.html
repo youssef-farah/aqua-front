@@ -1,0 +1,168 @@
+<app-navbar></app-navbar>
+
+<!-- Hero Section with Animated Offers -->
+<section class="hero-section">
+  <div class="water-overlay"></div>
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <div class="hero-content">
+    <h1 class="hero-title glitch" data-text="MÉGA PROMOTIONS">MÉGA PROMOTIONS</h1>
+    <p class="hero-subtitle pulse">Équipements Piscine & Sanitaire Premium</p>
+
+    <div class="discount-badges">
+      <div class="badge-wrapper flash">
+        <div class="discount-badge badge-1">
+          <span class="percentage">20%</span>
+          <span class="off">OFF</span>
+        </div>
+      </div>
+      <div class="badge-wrapper flash-delay-1">
+        <div class="discount-badge badge-2">
+          <span class="percentage">30%</span>
+          <span class="off">OFF</span>
+        </div>
+      </div>
+      <div class="badge-wrapper flash-delay-2">
+        <div class="discount-badge badge-3">
+          <span class="percentage">50%</span>
+          <span class="off">OFF</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-cta">
+      <button class="cta-button">
+        <span>PROFITEZ MAINTENANT</span>
+        <div class="button-shine"></div>
+      </button>
+    </div>
+  </div>
+
+  <div class="wave wave1"></div>
+  <div class="wave wave2"></div>
+  <div class="wave wave3"></div>
+</section>
+
+<!-- Offers Section -->
+<section class="offers-section">
+  <div class="container">
+    <h2 class="section-title">
+      <span class="title-text">NOS OFFRES EXCLUSIVES</span>
+      <span class="title-underline"></span>
+    </h2>
+
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+
+    <div *ngIf="!loading && offres.length === 0" class="no-offers">
+      <p>Aucune offre disponible pour le moment</p>
+    </div>
+
+    <div class="offers-grid" *ngIf="!loading && offres.length > 0">
+      <div
+        class="offer-card"
+        *ngFor="let offre of offres; let i = index"
+        [style.animation-delay.ms]="i * 100"
+      >
+        <div class="offer-card-inner">
+          <div class="offer-image-container">
+            <img
+              [src]="'http://localhost:8085/' + offre.imageUrl"
+              [alt]="offre.titre"
+              class="offer-image"
+            />
+            <div class="offer-overlay"></div>
+            <div class="price-tag">
+              <span class="price-amount">{{ offre.prix }} TND</span>
+            </div>
+          </div>
+
+          <div class="offer-content">
+            <h3 class="offer-title">{{ offre.titre }}</h3>
+            <p class="offer-description">{{ offre.description }}</p>
+
+            <button class="offer-button">
+              <span>Voir l'offre</span>
+              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 12h14M12 5l7 7-7 7"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Hot Sales Section -->
+<section class="hot-sales-section">
+  <div class="container">
+    <div class="hot-sales-header">
+      <h2 class="section-title fire-text">
+        <span class="fire-icon">🔥</span>
+        VENTES FLASH
+        <span class="fire-icon">🔥</span>
+      </h2>
+      <p class="hot-subtitle blink">STOCKS LIMITÉS - OFFRES EXCEPTIONNELLES</p>
+    </div>
+
+    <div class="hot-products-grid">
+      <div
+        class="product-card"
+        *ngFor="let product of hotProducts; let i = index"
+        [style.animation-delay.ms]="i * 150"
+      >
+        <!-- REMOVED fake discount badge -->
+
+        <div class="product-image-wrapper">
+          <img
+            [src]="'http://localhost:8085/' + product.image || 'assets/default-product.jpg'"
+            [alt]="product.titre"
+            class="product-image"
+          />
+          <div class="image-glow"></div>
+        </div>
+
+        <div class="product-info"> 
+          <h3 class="product-name">{{ product.titre }}</h3>
+          <p class="product-description">{{ product.description }}</p>
+
+          <div class="price-container">
+            <span class="sale-price">{{ product.prix }} TND</span>
+          </div>
+
+          <div class="stock-bar">
+            <div class="stock-fill"></div>
+          </div>
+
+          <p class="stock-text">⚡ Plus que quelques unités disponibles!</p>
+
+          <button class="add-to-cart-btn">
+            <span>AJOUTER AU PANIER</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating Elements -->
+<div class="floating-icons">
+  <div class="float-icon icon-1">💧</div>
+  <div class="float-icon icon-2">🏊</div>
+  <div class="float-icon icon-3">🚿</div>
+  <div class="float-icon icon-4">💎</div>
+</div>
+
+<app-footer></app-footer>

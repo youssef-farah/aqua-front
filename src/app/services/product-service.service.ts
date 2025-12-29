@@ -26,6 +26,9 @@ export class ProductServiceService {
   updateProduct(code: number, product: Product): Observable<Product> {
     return this.http.put<Product>(`${this.apiUrl}/${code}`, product, { withCredentials: true });
   }
+ updateProductStock(code: number, stock: number): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/stock/${code}`,  stock , { withCredentials: true });
+  }
 
   deleteProduct(code: number): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${code}`, { withCredentials: true });

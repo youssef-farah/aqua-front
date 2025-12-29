@@ -17,6 +17,9 @@ import { OrdersComponent } from './components/back-office/orders/orders.componen
 import { MainComponent } from './components/back-office/main/main.component';
 import { ServicesComponent } from './components/services/services.component';
 import { OffresComponent } from './components/back-office/offres/offres.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { OffresboutiqueComponent } from './components/offresboutique/offresboutique.component';
 const routes: Routes = [
 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -31,14 +34,18 @@ const routes: Routes = [
   {path:'panier', component:CartComponent},
   {path:'produits', component:ProductCrudComponent},
   {path:'services',component: ServicesComponent},
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   {path:'orders', component:OrdersComponent},
+    {path:'offresboutique', component:OffresboutiqueComponent},
+
   {path:"main",component:MainComponent,  canActivate: [AuthGuard],children:[
     { path: "", redirectTo: "dashboard", pathMatch: "full" },
     {path:"dashboard",component:DashboardComponent},
     {path:"produits",component:ProductCrudComponent},
     {path:'categories', component:CategoryCrudComponent},
     {path:'orders', component:OrdersComponent},
-    {path:'offres', component:OffresComponent},
+    {path:'offres', component:OffresComponent}, 
 
 
    // {path:"dashboard/statistics",component:DbsStatisticsComponent},

@@ -1,41 +1,63 @@
 <div class="popup-overlay" *ngIf="isVisible" (click)="closePopup()">
   <div class="popup-container" (click)="$event.stopPropagation()">
 
+    <!-- Decorative circles -->
+    <div class="deco-circle"></div>
+    <div class="deco-circle"></div>
+    <div class="deco-circle"></div>
+
     <button class="close-btn" (click)="closePopup()">×</button>
 
-    <h1 class="popup-title">Nos Offres</h1>
+    <div class="popup-content" *ngIf="offres.length > 0">
 
-    <div class="slideshow-container" *ngIf="offres.length > 0">
+      <!-- LEFT -->
+      <div class="left-section">
+        <div class="promo-text">
+          <span class="promo-top">🔥 Soldes de fin d’année</span>
+          <span class="promo-sub">Offre limitée – Jusqu’à épuisement du stock</span>
+        </div>
 
-      <div class="image-wrapper">
-        <img src="ventes-flash-1.jpg" class="offer-image" />
+        <div class="slide-content">
+          <h2>{{ offres[currentIndex].titre }}</h2>
+          <p>{{ offres[currentIndex].description }}</p>
+          <h3 class="offer-price">A partir de {{ offres[currentIndex].prix }} TND</h3>
+          <button class="discover-btn" (click)="goToBoutique()">
+            Découvrir plus »
+          </button>
+        </div>
       </div>
 
-      <div class="slide fade">
-        <h2>{{ offres[currentIndex].titre }}</h2>
-        <p>{{ offres[currentIndex].description }}</p>
-        <h3 class="offer-price">{{ offres[currentIndex].prix }} TND</h3>
-
-        <button class="discover-btn" (click)="goToBoutique()">
-          Découvrir plus !
-        </button>
+      <!-- RIGHT -->
+      <div class="right-section">
+        <div class="badge-wrapper">
+          <div class="sales-badge rotating">
+            <div class="badge-inner">
+              <span class="badge-percent">PROMOS</span>
+              <span class="badge-label">50% 20% 10%</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <button class="prev-btn" (click)="previousSlide()">❮</button>
-      <button class="next-btn" (click)="nextSlide()">❯</button>
-
-      <div class="dots">
-        <span 
-          *ngFor="let offre of offres; let i = index"
-          class="dot"
-          [class.active]="i === currentIndex"
-          (click)="goToSlide(i)">
-        </span>
-      </div>
     </div>
 
-    <div *ngIf="offres.length === 0" class="loading">
+    <!-- Loading -->
+    <div class="loading" *ngIf="offres.length === 0">
       Loading offres...
+    </div>
+
+    <!-- Navigation -->
+    <button class="prev-btn" (click)="previousSlide()" *ngIf="offres.length > 0">❮</button>
+    <button class="next-btn" (click)="nextSlide()" *ngIf="offres.length > 0">❯</button>
+
+    <!-- Dots -->
+    <div class="dots" *ngIf="offres.length > 0">
+      <span
+        *ngFor="let offre of offres; let i = index"
+        class="dot"
+        [class.active]="i === currentIndex"
+        (click)="goToSlide(i)">
+      </span>
     </div>
 
   </div>

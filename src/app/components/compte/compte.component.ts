@@ -25,6 +25,7 @@ import { UserServiceService } from '../../services/user-service.service';
   isLoggedIn = false;
   currentUser: any = null;
   currentUser2: any = null;
+registerStep: 1 | 2 = 1;
 
 
   constructor(
@@ -40,14 +41,23 @@ import { UserServiceService } from '../../services/user-service.service';
     });
 
     // Register form
-    this.registerForm = this.fb.group({
-      nom: ['', [Validators.required, Validators.minLength(2)]],
-      prenom: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      telephone: ['', [Validators.pattern(/^[0-9+\s-()]*$/)]],
-      adresse: [''],
-    });
+  this.registerForm = this.fb.group({
+  nom: ['', [Validators.required, Validators.minLength(2)]],
+  prenom: ['', [Validators.required, Validators.minLength(2)]],
+  email: ['', [Validators.required, Validators.email]],
+  password: ['', [Validators.required, Validators.minLength(6)]],
+
+  telephone: ['', [Validators.pattern(/^[0-9+\s-()]*$/)]],
+
+  adresse: this.fb.group({
+    country: [''],
+    city: [''],
+    street: [''],
+    postalCode: [''],
+    houseNumber: ['']
+  })
+});
+
 
     // Combined account form for display and update
     this.accountForm = this.fb.group({
@@ -65,6 +75,9 @@ import { UserServiceService } from '../../services/user-service.service';
   }
 
   ngOnInit(): void {
+
+
+    
     this.isLoggedIn = this.authService.isLoggedIn();
     
     if (this.isLoggedIn) {
@@ -85,6 +98,20 @@ import { UserServiceService } from '../../services/user-service.service';
       }
     });
   }
+
+
+  goToStep(step: 1 | 2): void {
+  this.registerStep = step;
+}
+
+isStep1Valid(): boolean {
+  return (
+    this.registerForm.get('nom')?.valid &&
+    this.registerForm.get('prenom')?.valid &&
+    this.registerForm.get('email')?.valid &&
+    this.registerForm.get('password')?.valid
+  );
+}
 
   /**
    * Load full user data from backend
@@ -257,20 +284,23 @@ import { UserServiceService } from '../../services/user-service.service';
     this.successMessage = '';
 
     const userData = {
-      nom: this.registerForm.value.nom,
-      prenom: this.registerForm.value.prenom,
-      email: this.registerForm.value.email,
-      password: this.registerForm.value.password,
-      telephone: this.registerForm.value.telephone || '',
-      adresse: this.registerForm.value.adresse || ''
-    };
+  nom: this.registerForm.value.nom,
+  prenom: this.registerForm.value.prenom,
+  email: this.registerForm.value.email,
+  password: this.registerForm.value.password,
+  telephone: this.registerForm.value.telephone,
+  adresse: this.registerForm.value.adresse
+};
+this.registerStep = 1;
+
 
     this.authService.signup(userData).subscribe({
       next: (response) => {
+        console.log(userData);
         this.loading = false;
         this.successMessage = 'Compte créé avec succès ! Redirection...';
         this.isLoggedIn = true;
-        this.currentUser = this.authService.getCurrentUser();
+        this.currentUser = this.authService.getFullUser();
         this.loadUserData();
         
         this.registerForm.reset();

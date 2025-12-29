@@ -93,7 +93,7 @@ export class OffreComponent implements OnInit, OnDestroy {
 
 
   goToBoutique() {
-  this.router.navigate(['/boutique']);
+  this.router.navigate(['/offresboutique']);
 }
 
 }

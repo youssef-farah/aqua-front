@@ -12,10 +12,12 @@ export class CategoryCrudComponent implements OnInit {
   
   showCategoryForm: boolean = false;
   editingCategoryId: number | null = null;
+  selectedParentCategoryId: number | null = null;
   
   categoryFormData: any = {
     nom: '',
-    description: ''
+    description: '',
+    ParentCategory: null
   };
 
   successMessage: string = '';
@@ -44,6 +46,8 @@ export class CategoryCrudComponent implements OnInit {
     if (category) {
       this.editingCategoryId = category.id_category;
       this.categoryFormData = { ...category };
+      // Set the selected parent category ID for the dropdown
+      this.selectedParentCategoryId = category.parentCategory?.id_category || null;
     } else {
       this.resetCategoryForm();
     }
@@ -57,9 +61,11 @@ export class CategoryCrudComponent implements OnInit {
   resetCategoryForm(): void {
     this.categoryFormData = {
       nom: '',
-      description: ''
+      description: '',
+      ParentCategory: null
     };
     this.editingCategoryId = null;
+    this.selectedParentCategoryId = null;
   }
 
   saveCategory(): void {
@@ -76,9 +82,12 @@ export class CategoryCrudComponent implements OnInit {
   }
 
   createCategory(): void {
-    this.categoryService.createCategory(this.categoryFormData).subscribe({
+    // Prepare the category data with the full parent category object
+    const categoryData = this.prepareCategoryData();
+    
+    this.categoryService.createCategory(categoryData).subscribe({
       next: () => {
-        console.log(this.categoryFormData);
+        console.log(categoryData);
         this.showSuccess('Catégorie créée avec succès');
         this.closeCategoryForm();
         this.loadCategories();
@@ -91,8 +100,12 @@ export class CategoryCrudComponent implements OnInit {
   }
 
   updateCategory(): void {
-    this.categoryService.updateCategory(this.editingCategoryId!, this.categoryFormData).subscribe({
+    // Prepare the category data with the full parent category object
+    const categoryData = this.prepareCategoryData();
+    
+    this.categoryService.updateCategory(this.editingCategoryId!, categoryData).subscribe({
       next: () => {
+        console.log(categoryData);
         this.showSuccess('Catégorie mise à jour avec succès');
         this.closeCategoryForm();
         this.loadCategories();
@@ -102,6 +115,24 @@ export class CategoryCrudComponent implements OnInit {
         console.error(error);
       }
     });
+  }
+
+  prepareCategoryData(): any {
+    const data = {
+      nom: this.categoryFormData.nom,
+      description: this.categoryFormData.description,
+      parentCategory: null as Category | null
+    };
+
+    // If a parent category is selected, fetch and include the full category object
+    if (this.selectedParentCategoryId) {
+      const parentCategory = this.categories.find(
+        cat => cat.id_category === this.selectedParentCategoryId
+      );
+      data.parentCategory = parentCategory || null;
+    }
+
+    return data;
   }
 
   deleteCategory(categoryId: number): void {

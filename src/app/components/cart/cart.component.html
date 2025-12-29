@@ -102,8 +102,44 @@
         <span class="detail-value">{{ currentUser?.telephone || 'N/A' }}</span>
       </div>
       <div class="detail-row">
-        <span class="detail-label">Address:</span>
+        <span class="detail-label">Pays:</span>
+        
+        <span class="detail-value">{{ currentUser?.adresse.country || 'No address provided' }}</span>
+                
+
+      </div>
+
+
+        <div class="detail-row">
+      
+                <span class="detail-label">Gouvernement:</span>
+
+        <span class="detail-value">{{ currentUser?.adresse.city || 'No address provided' }}</span>
+
+
+
+      </div>
+
+
+        <div class="detail-row">
+     
+                <span class="detail-label">Rue:</span>
+
         <span class="detail-value">{{ currentUser?.adresse.street || 'No address provided' }}</span>
+                
+
+      </div>
+
+
+
+        <div class="detail-row">
+
+                <span class="detail-label">N:</span>
+
+        <span class="detail-value">{{ currentUser?.adresse.housenumber || 'No address provided' }}</span>
+
+
+
       </div>
       
       <button class="btn-update-profile" (click)="goToProfile()">

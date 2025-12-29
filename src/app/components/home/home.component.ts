@@ -44,6 +44,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     { label: 'Clients', target: 3000, current: 0, suffix: '+' }
   ];
 
+
+  navLinks = [
+  { to: '/', label: 'Accueil' },
+  { to: '/boutique', label: 'Boutique' },
+  { to: '/services', label: 'Services' },
+  { to: '/contact', label: 'Contact' },
+  { to: '/apropos', label: 'À Propos' },
+];
+
+totalItems = 0;
+
   currentImage = 0;
   currentTestimonial = 0;
   heroInterval: any;

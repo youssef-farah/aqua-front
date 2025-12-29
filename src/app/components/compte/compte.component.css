@@ -404,6 +404,22 @@
   font-size: 0.95rem;
 }
 
+.btn-retour {
+  width: 50%;
+  background: linear-gradient(135deg, #e55255 0%, #b81919 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+
+
 .tab-content form button[type="submit"]:hover:not(:disabled) {
   background: linear-gradient(135deg, #0277bd 0%, #014a8a 100%);
   transform: translateY(-2px);
@@ -511,5 +527,43 @@
   .btn-logout {
     padding: 0.75rem 1rem;
     font-size: 0.9rem;
+  }
+}
+
+/* Register steps animation */
+.register-steps {
+  position: relative;
+  overflow: hidden;
+}
+
+.step {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: all 0.4s ease;
+  position: absolute;
+  width: 100%;
+}
+
+.step.active {
+  opacity: 1;
+  transform: translateX(0);
+  position: relative;
+}
+
+/* Address grid */
+.address-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.address-grid .form-group:last-child {
+  grid-column: span 2;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .address-grid {
+    grid-template-columns: 1fr;
   }
 }

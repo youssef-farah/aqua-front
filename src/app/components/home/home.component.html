@@ -1,13 +1,30 @@
-<app-navbar></app-navbar>
 <app-offre></app-offre>
+           <app-navbar></app-navbar>
+
 <main class="home-root">
     <!-- Hero -->
+
     <section class="hero">
+
       <div class="hero-slides">
-        <img *ngFor="let img of heroImages; let i=index"
+      <!--  <img *ngFor="let img of heroImages; let i=index"
              [src]="img"
              [class.visible]="i===currentImage"
-             class="hero-img" />
+             class="hero-img" /> -->
+
+
+          <video
+  class="hero-video"
+  autoplay
+  muted
+  loop
+  playsinline
+  preload="auto"
+>
+  <source src="/vid4.mp4" type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+<!-- Dark overlay -->   
         <div class="hero-overlay"></div>
         <div class="container hero-content">
           <div class="hero-text animate-hero">

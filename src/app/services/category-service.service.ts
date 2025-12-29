@@ -24,6 +24,7 @@ export class CategoryServiceService {
   }
 
     updateCategory(id: number, category: Category): Observable<Category> {
+      console.log('Updating category with ID:', id, 'Data:', category);
       return this.http.put<Category>(`${this.apiUrl}/${id}`, category,{ withCredentials: true });
     }
 

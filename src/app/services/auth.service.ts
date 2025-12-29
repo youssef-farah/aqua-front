@@ -4,6 +4,7 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { User } from '../models/user';
+import { Adresse } from '../models/adresse';
 
 interface AuthenticationResponse {
   access_token: string;
@@ -55,8 +56,8 @@ export class AuthService {
     prenom: string;
     email: string;
     password: string;
-    telephone?: string;
-    adresse?: string;
+    telephone: string;
+    adresse: Adresse;
   }): Observable<AuthenticationResponse> {
     // Map frontend fields to backend fields
     const registerRequest = {
@@ -65,7 +66,8 @@ export class AuthService {
       email: userData.email,
       password: userData.password,
       telephone: userData.telephone,
-      role: 'CUSTOMER' // Default role
+      role: 'CUSTOMER',
+      adresse: userData.adresse // Default role
     };
 
     return this.http.post<AuthenticationResponse>(`${this.apiUrl}/register`, registerRequest).pipe(
@@ -344,4 +346,33 @@ private extractRoleFromToken(token: string): string {
       })
     );
   }
+
+
+forgotPassword(email: string): Observable<any> {
+  return this.http.post(
+    `${this.apiUrl}/forgot-password`,
+    null,
+    {
+      params: { email },responseType: 'text'
+    }
+  );
+}
+
+/**
+ * Reset password using token
+ */
+resetPassword(token: string, newPassword: string): Observable<string> {
+  return this.http.post(
+    `${this.apiUrl}/reset-password`,
+    null,
+    {
+      params: {
+        token,
+        newPassword
+      },responseType: 'text'
+    }
+  );
+}
+
+
 }
