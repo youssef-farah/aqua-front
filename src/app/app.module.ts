@@ -27,6 +27,12 @@ import { OffresComponent } from './components/back-office/offres/offres.componen
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { OffresboutiqueComponent } from './components/offresboutique/offresboutique.component';
+import { SocialSidebarComponent } from './social-sidebar/social-sidebar.component';
+import { FaqComponent } from './components/faq/faq.component';
+import { DosageComponent } from './components/dosage/dosage.component';
+import { SuccespayComponent } from './components/succespay/succespay.component';
+import { FailpayComponent } from './components/failpay/failpay.component';
+import { RedirectpageComponent } from './components/redirectpage/redirectpage.component';
 
 
 @NgModule({
@@ -52,7 +58,13 @@ import { OffresboutiqueComponent } from './components/offresboutique/offresbouti
     OffresComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
-    OffresboutiqueComponent
+    OffresboutiqueComponent,
+    SocialSidebarComponent,
+    FaqComponent,
+    DosageComponent,
+    SuccespayComponent,
+    FailpayComponent,
+    RedirectpageComponent
   ],
   imports: [
     BrowserModule,

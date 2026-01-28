@@ -1,0 +1,52 @@
+<div class="social-sidebar" [class.closed]="isClosed" >
+
+  <!-- Toggle Button -->
+  <button
+    class="toggle-btn"
+    (click)="toggleSidebar()"
+    aria-label="Toggle social sidebar"
+  >
+    <i
+      class="fas"
+      [ngClass]="isClosed ? 'fa-arrow-left' : 'fa-arrow-right'"
+    ></i>
+  </button>
+
+  <!-- Social Icons -->
+  <a
+    href="https://www.facebook.com"
+    target="_blank"
+    class="social-item facebook"
+    *ngIf="!isClosed"
+  >
+    <i class="fab fa-facebook-f"></i>
+  </a>
+
+  <a
+    href="https://www.instagram.com"
+    target="_blank"
+    class="social-item instagram"
+    *ngIf="!isClosed"
+  >
+    <i class="fab fa-instagram"></i>
+  </a>
+
+  <a
+    href="https://www.tiktok.com"
+    target="_blank"
+    class="social-item tiktok"
+    *ngIf="!isClosed"
+  >
+    <i class="fab fa-tiktok"></i>
+  </a>
+
+  <a
+    href="https://wa.me/123456789"
+    target="_blank"
+    class="social-item whatsapp"
+    *ngIf="!isClosed"
+  >
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+</div>

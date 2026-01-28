@@ -375,4 +375,31 @@ resetPassword(token: string, newPassword: string): Observable<string> {
 }
 
 
+
+loginWithGoogle(googleIdToken: string): Observable<AuthenticationResponse> {
+  return this.http.post<AuthenticationResponse>(`${this.apiUrl}/google`, {
+    token: googleIdToken
+  }).pipe(
+    tap((response: AuthenticationResponse) => {
+      if (response && response.access_token) {
+        // Extract email from Google token (optional, for display)
+        const email = this.extractEmailFromGoogleToken(googleIdToken);
+        this.handleAuthenticationSuccess(response, email || 'google-user@example.com');
+      }
+    })
+  );
+}
+
+/**
+ * Extract email from Google ID token (client-side decode)
+ */
+private extractEmailFromGoogleToken(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.email || null;
+  } catch {
+    return null;
+  }
+}
+
 }

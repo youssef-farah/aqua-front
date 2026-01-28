@@ -20,6 +20,10 @@ import { OffresComponent } from './components/back-office/offres/offres.componen
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { OffresboutiqueComponent } from './components/offresboutique/offresboutique.component';
+import { DosageComponent } from './components/dosage/dosage.component';
+import { FailpayComponent } from './components/failpay/failpay.component';
+import { SuccespayComponent } from './components/succespay/succespay.component';
+import { RedirectpageComponent } from './components/redirectpage/redirectpage.component';
 const routes: Routes = [
 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -27,6 +31,9 @@ const routes: Routes = [
   { path: 'navbar', component: NavbarComponent },
   { path: 'footer', component: FooterComponent },
   { path: 'boutique', component: BoutiqueComponent },
+    { path: 'dosage', component: DosageComponent },
+
+
   {path:'contact', component:ContactComponent},
   {path:'compte', component:CompteComponent},
   {path:'apropos', component:AproposComponent},
@@ -38,6 +45,9 @@ const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   {path:'orders', component:OrdersComponent},
     {path:'offresboutique', component:OffresboutiqueComponent},
+    {path:'failpay', component:FailpayComponent},
+    {path:'succespay', component:SuccespayComponent},
+    {path:'redirectpage', component:RedirectpageComponent},
 
   {path:"main",component:MainComponent,  canActivate: [AuthGuard],children:[
     { path: "", redirectTo: "dashboard", pathMatch: "full" },
@@ -61,7 +71,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+  scrollPositionRestoration: 'top'
+})
+],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

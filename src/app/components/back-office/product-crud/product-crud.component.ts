@@ -32,52 +32,71 @@ export class ProductCrudComponent implements OnInit {
 
   successMessage: string = '';
   errorMessage: string = '';
-
-
   selectedFile: File | null = null;
-imagePreview: string | ArrayBuffer | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
 
   constructor(
     private productService: ProductServiceService,
-    private categoryService: CategoryServiceService, private http :HttpClient
+    private categoryService: CategoryServiceService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
-    this.loadCategories();
+    this.loadCategoriesAndProducts();
   }
 
-  loadProducts(): void {
-    this.productService.getAllProducts().subscribe({
-      next: (data) => {
-        this.products = data;
-        this.filteredProducts = data;
-      },
-      error: (error) => {
-        this.showError('Erreur lors du chargement des produits');
-        console.error(error);
-      }
-    });
-  }
-
-  loadCategories(): void {
+  /**
+   * Load categories first, then extract products from each category
+   * This ensures each product has its category properly attached
+   */
+  loadCategoriesAndProducts(): void {
     this.categoryService.getAllCategories().subscribe({
-      next: (data) => {
-        this.categories = data;
+      next: (categories) => {
+        this.categories = categories;
+        
+        // Extract all products from all categories
+        const allProducts: Product[] = [];
+        
+        categories.forEach((category) => {
+          if (category.products && category.products.length > 0) {
+            category.products.forEach((product: Product) => {
+              // Attach the category reference to each product
+              product.category = category;
+              allProducts.push(product);
+            });
+          }
+        });
+        
+        this.products = allProducts;
+        this.filteredProducts = allProducts;
       },
       error: (error) => {
-        this.showError('Erreur lors du chargement des catégories');
+        this.showError('Erreur lors du chargement des données');
         console.error(error);
       }
     });
   }
 
   openProductForm(product?: Product): void {
-    console.log("yes");
     this.showProductForm = true;
     if (product) {
       this.editingProductId = product.code;
-      this.productFormData = { ...product };
+      // Deep copy to avoid modifying the original product
+      this.productFormData = {
+        code: product.code,
+        titre: product.titre,
+        description: product.description,
+        prix: product.prix,
+        stock: product.stock,
+        lieuDeProduction: product.lieuDeProduction,
+        image: product.image,
+        category: product.category
+      };
+      
+      // Set image preview if editing
+      if (product.image) {
+        this.imagePreview = `http://localhost:8085/${product.image}`;
+      }
     } else {
       this.resetProductForm();
     }
@@ -86,6 +105,8 @@ imagePreview: string | ArrayBuffer | null = null;
   closeProductForm(): void {
     this.showProductForm = false;
     this.resetProductForm();
+    this.selectedFile = null;
+    this.imagePreview = null;
   }
 
   resetProductForm(): void {
@@ -100,82 +121,117 @@ imagePreview: string | ArrayBuffer | null = null;
       category: null
     };
     this.editingProductId = null;
+    this.selectedFile = null;
+    this.imagePreview = null;
   }
 
   saveProduct(): void {
-  if (!this.productFormData.titre || !this.productFormData.prix) {
-    this.showError('Veuillez remplir les champs obligatoires');
-    return;
+    if (!this.productFormData.titre || !this.productFormData.prix) {
+      this.showError('Veuillez remplir les champs obligatoires');
+      return;
+    }
+
+    // If user selected a new image, upload it first
+    if (this.selectedFile) {
+      this.uploadImageAndSave();
+    } else {
+      // No new image selected, proceed with create/update
+      if (this.editingProductId) {
+        this.updateProduct();
+      } else {
+        this.createProduct();
+      }
+    }
   }
 
-  // If user selected an image, upload it first
-  if (this.selectedFile) {
+  uploadImageAndSave(): void {
+    if (!this.selectedFile) return;
+
     const formData = new FormData();
     formData.append('file', this.selectedFile);
 
     this.http.post('http://localhost:8085/api/products/upload', formData, { responseType: 'text' })
       .subscribe({
         next: (fileName: string) => {
-          const imageUrl = `uploads/${fileName}`;
-          this.productFormData.image = imageUrl; // ✅ assign correct field name
+          // Set the image path (backend will prepend uploads/)
+          this.productFormData.image = `uploads/${fileName}`;
 
-          // After upload success, create or update product
+          // Now create or update the product
           if (this.editingProductId) {
             this.updateProduct();
           } else {
             this.createProduct();
           }
         },
-        error: (err) => {
-          console.error(err);
-          this.showError('Erreur lors du téléversement de l’image');
+        error: (error) => {
+          this.showError('Erreur lors du téléversement de l\'image');
+          console.error(error);
         }
       });
-  } else {
-    // If no image selected, just create or update directly
-    if (this.editingProductId) {
-      this.updateProduct();
-    } else {
-      this.createProduct();
-    }
   }
-}
-
 
   createProduct(): void {
-  this.productService.createProduct(this.productFormData).subscribe({
-    next: () => {
-      this.showSuccess('Produit créé avec succès');
-      this.closeProductForm();
-      this.loadProducts();
-    },
-    error: (error) => {
-      this.showError('Erreur lors de la création du produit');
-      console.error(error);
-    }
-  });
-}
+    // Prepare data for backend - send only category ID to avoid circular reference
+    const productData = this.prepareProductDataForBackend();
+    
+    this.productService.createProduct(productData).subscribe({
+      next: () => {
+        this.showSuccess('Produit créé avec succès');
+        this.closeProductForm();
+        this.loadCategoriesAndProducts();
+      },
+      error: (error) => {
+        this.showError('Erreur lors de la création du produit');
+        console.error(error);
+      }
+    });
+  }
 
-updateProduct(): void {
-  this.productService.updateProduct(this.editingProductId!, this.productFormData).subscribe({
-    next: () => {
-      this.showSuccess('Produit mis à jour avec succès');
-      this.closeProductForm();
-      this.loadProducts();
-    },
-    error: (error) => {
-      this.showError('Erreur lors de la mise à jour du produit');
-      console.error(error);
-    }
-  });
-}
+  updateProduct(): void {
+    // Prepare data for backend - send only category ID to avoid circular reference
+    const productData = this.prepareProductDataForBackend();
+    
+    this.productService.updateProduct(this.editingProductId!, productData).subscribe({
+      next: () => {
+        this.showSuccess('Produit mis à jour avec succès');
+        this.closeProductForm();
+        this.loadCategoriesAndProducts();
+      },
+      error: (error) => {
+        this.showError('Erreur lors de la mise à jour du produit');
+        console.error(error);
+      }
+    });
+  }
+
+  /**
+   * Prepare product data for backend by converting category object to just the ID
+   * This avoids circular reference issues when serializing to JSON
+   */
+  prepareProductDataForBackend(): any {
+    const productData = {
+      code: this.productFormData.code,
+      titre: this.productFormData.titre,
+      description: this.productFormData.description,
+      prix: this.productFormData.prix,
+      stock: this.productFormData.stock,
+      lieuDeProduction: this.productFormData.lieuDeProduction,
+      image: this.productFormData.image,
+      // Send only the category object with id_category, not the full nested object
+      category: this.productFormData.category ? {
+        id_category: this.productFormData.category.id_category
+      } : null
+    };
+    
+    return productData;
+  }
 
   deleteProduct(productId: number): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
       this.productService.deleteProduct(productId).subscribe({
         next: () => {
           this.showSuccess('Produit supprimé avec succès');
-          this.loadProducts();
+          this.loadCategoriesAndProducts();
         },
         error: (error) => {
           this.showError('Erreur lors de la suppression du produit');
@@ -189,7 +245,8 @@ updateProduct(): void {
     const term = this.searchTerm.toLowerCase();
     this.filteredProducts = this.products.filter(p =>
       p.titre.toLowerCase().includes(term) ||
-      p.description.toLowerCase().includes(term)
+      p.description.toLowerCase().includes(term) ||
+      (p.category?.nom && p.category.nom.toLowerCase().includes(term))
     );
   }
 
@@ -209,15 +266,7 @@ updateProduct(): void {
     return category ? category.nom : 'N/A';
   }
 
-
-
-
-
-
-
-
-
- onFileSelected(event: any) {
+  onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0];
 
     if (this.selectedFile) {
@@ -226,22 +275,4 @@ updateProduct(): void {
       reader.readAsDataURL(this.selectedFile);
     }
   }
-
-  uploadImage() {
-    if (!this.selectedFile) {
-      console.error('No file selected');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', this.selectedFile);
-    
-this.http.post('http://localhost:8085/api/products/upload', formData, { responseType: 'text' })
-  .subscribe((fileName: string) => {
-    const imageUrl = `http://localhost:8085/uploads/${fileName}`;
-    this.productFormData.imageUrl = imageUrl;
-     this.saveProduct();
-
-  });
-}
 }

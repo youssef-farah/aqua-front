@@ -1,30 +1,55 @@
 <nav class="nav">
-    <div class="container nav-inner">
-      <a class="brand" routerLink="/">
-        <div class="logo"><img src="mouja.png" class="logo"></div>
-        <span class="brand-text">AquaLux</span>
+  <div class="container nav-inner">
+
+    <!-- Brand -->
+    <a class="brand" routerLink="/" (click)="closeMenu()">
+      <img src="mouja.png" class="logo">
+      <span class="brand-text">AquaLux</span>
+    </a>
+
+    <!-- Desktop links -->
+    <div class="links desktop-only">
+      <a *ngFor="let link of navLinks"
+         [routerLink]="link.to"
+         class="nav-link">
+        {{ link.label }}
       </a>
-  
-      <div class="links desktop-only">
-        <a *ngFor="let link of navLinks" [routerLink]="link.to" class="nav-link">
-          {{ link.label }}
-        </a>
-      </div>
-  
-      <div class="actions">
-        <p (click)="logout()"><i class="fa-solid fa-phone"></i> 92664240</p>
-        <a routerLink="/compte" class="icon-btn"><i class="fa fa-user"></i></a>
-  
-        <a routerLink="/panier" class="icon-btn cart">
-          <i class="fa fa-shopping-cart"></i>
-          <span *ngIf="totalItems>0" class="badge">{{ totalItems }}</span>
-        </a>
-  
-        <!-- simple mobile menu button (you can wire it to open a drawer) -->
-        <button class="icon-btn mobile-only" aria-label="menu">
-          <i class="fa fa-bars"></i>
-        </button>
-      </div>
     </div>
-  </nav>
-  
+
+    <!-- Desktop actions -->
+    <div class="actions desktop-only">
+      <p><i class="fa-solid fa-phone"></i> 92664240</p>
+
+      <a routerLink="/compte" class="icon-btn">
+        <i class="fa fa-user"></i>
+      </a>
+
+      <a routerLink="/panier" class="icon-btn">
+        <i class="fa fa-shopping-cart"></i>
+        <span *ngIf="totalItems > 0" class="badge">{{ totalItems }}</span>
+      </a>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button class="icon-btn mobile-only"
+            (click)="toggleMenu()"
+            aria-label="menu">
+      <i class="fa fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" [class.open]="isMenuOpen">
+    <a *ngFor="let link of navLinks"
+       [routerLink]="link.to"
+       (click)="closeMenu()">
+      {{ link.label }}
+    </a>
+
+    <div class="mobile-actions">
+      <a routerLink="/compte" (click)="closeMenu()">Mon compte</a>
+      <a routerLink="/panier" (click)="closeMenu()">Panier</a>
+      <span class="phone"><i class="fa fa-phone"></i> 92664240</span>
+    </div>
+  </div>
+</nav>

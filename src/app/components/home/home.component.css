@@ -1036,3 +1036,163 @@
   }
 }
 }
+
+
+/* ===========================
+   HERO – MOBILE & TABLET
+=========================== */
+@media (max-width: 768px) {
+  .hero {
+    height: 480px;
+  }
+
+  .hero-text {
+    padding-top: 80px;
+    text-align: center;
+  }
+
+  .hero-text h1 {
+    font-size: 30px;
+    line-height: 1.15;
+  }
+
+  .lead {
+    font-size: 15px;
+  }
+
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-video {
+    object-position: center;
+  }
+
+  .scroll-indicator {
+    display: none;
+  }
+}
+/* ===========================
+   NAVBAR – MOBILE
+=========================== */
+@media (max-width: 768px) {
+  .nav-inner {
+    height: 64px;
+  }
+
+  .brand-text {
+    font-size: 16px;
+  }
+
+  .logo {
+    width: 38px;
+    height: 30px;
+  }
+
+  .actions p {
+    display: none;
+  }
+}
+/* ===========================
+   CARDS – RESPONSIVE
+=========================== */
+@media (max-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 22px;
+  }
+
+  .service-card:hover {
+    transform: none;
+  }
+}
+/* ===========================
+   TESTIMONIALS – MOBILE FIX
+=========================== */
+@media (max-width: 768px) {
+  .testimonial-card {
+    position: relative;
+    left: auto;
+    transform: none;
+    width: 100%;
+    padding: 24px;
+  }
+
+  .quote-icon {
+    font-size: 40px;
+  }
+
+  .quote {
+    font-size: 14px;
+  }
+}
+/* ===========================
+   STATS – MOBILE
+=========================== */
+@media (max-width: 768px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .stat-circle {
+    width: 90px;
+    height: 90px;
+  }
+
+  .stat .num {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
+/* ===========================
+   PARTNERS – RESPONSIVE
+=========================== */
+@media (max-width: 768px) {
+  .partners {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .partner-frame {
+    padding: 20px;
+  }
+
+  .partner:hover .partner-frame {
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .partners {
+    grid-template-columns: 1fr;
+  }
+}
+/* ===========================
+   MOBILE PERFORMANCE
+=========================== */
+@media (max-width: 768px) {
+  video.hero-video {
+    filter: brightness(0.85);
+  }
+
+  .card,
+  .partner-frame,
+  .stat-circle {
+    will-change: auto;
+  }
+}

@@ -4,6 +4,7 @@ import { Product } from '../../models/product';
 import { CategoryServiceService } from '../../services/category-service.service';
 import { ProductServiceService } from '../../services/product-service.service';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-boutique',
@@ -41,11 +42,28 @@ export class BoutiqueComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    this.loadAllCategories();
-    this.loadParentCategories();
-    this.loadProducts();
-  }
+ ngOnInit(): void {
+  this.isLoadingCategories = true;
+
+  this.categoryService.getAllCategories().subscribe({
+    next: (all) => {
+      this.allCategories = all;
+
+      this.categoryService.getAllParentCategories().subscribe({
+        next: (parents) => {
+          this.parentCategories = parents;
+          this.loadCategoryImages(); // ✅ SAFE NOW
+          this.isLoadingCategories = false;
+        },
+        error: () => this.isLoadingCategories = false
+      });
+    },
+    error: () => this.isLoadingCategories = false
+  });
+
+  this.loadProducts();
+}
+
 
   loadAllCategories(): void {
     this.categoryService.getAllCategories().subscribe({
@@ -114,21 +132,28 @@ export class BoutiqueComponent implements OnInit {
       c => c.id_category === this.hoveredCategoryId
     ) || null;
   }
+loadCategoryImages(): void {
+  const requests = this.allCategories.map(category =>
+    this.productService.getProductsByCategory(category.id_category)
+  );
 
-  loadCategoryImages(): void {
-    this.parentCategories.forEach(category => {
-      this.productService.getProductsByCategory(category.id_category).subscribe({
-        next: (products) => {
-          if (products && products.length > 0) {
-            this.categoryImages.set(category.id_category, products[0].image);
-          }
-        },
-        error: (error) => {
-          console.error('Error loading category image:', error);
+  forkJoin(requests).subscribe({
+    next: (results) => {
+      results.forEach((products, index) => {
+        if (products && products.length > 0) {
+          this.categoryImages.set(
+            this.allCategories[index].id_category,
+            products[0].image
+          );
         }
       });
-    });
-  }
+    },
+    error: (error) => {
+      console.error('Error loading category images', error);
+    }
+  });
+}
+
 
   getCategoryImage(categoryId: number): string {
     return this.categoryImages.get(categoryId) || 'mouja.png';

@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user';
 import { UserServiceService } from '../../services/user-service.service';
+import { PaymentService } from '../../services/payment.service';
 
 @Component({
   selector: 'app-cart',
@@ -31,7 +32,8 @@ export class CartComponent implements OnInit {
     private orderItemService: OrderItemServiceService,
     private pr: ProductServiceService,
     private router: Router, 
-    private authService: AuthService,private userService:UserServiceService
+    private authService: AuthService,private userService:UserServiceService,
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
@@ -182,4 +184,17 @@ onCheckout(): void {
   closeConfirmationModal(): void {
     this.showConfirmationModal = false;
   }
+
+
+
+
+    payNow(orderId: number) {
+    this.paymentService.initiatePayment(orderId).subscribe(response => {
+      if (response.success) {
+        // Redirect to Flouci
+        window.location.href = response.paymentLink;
+      }
+    });
+  }
+
 }

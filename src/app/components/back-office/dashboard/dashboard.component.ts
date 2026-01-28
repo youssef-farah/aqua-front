@@ -3,6 +3,9 @@ import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js'
 import { Product } from '../../../models/product';
 import { ProductServiceService } from '../../../services/product-service.service';
 import { CategoryServiceService } from '../../../services/category-service.service';
+import { OrderServiceService } from '../../../services/order-service.service';
+import { Order, OrderState } from '../../../models/order';
+import { jsPDF } from 'jspdf';
 
 Chart.register(...registerables);
 @Component({
@@ -11,198 +14,200 @@ Chart.register(...registerables);
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements AfterViewInit {
-  // Stats
-  totalProducts: number = 0;
-  totalCategories: number = 0;
-  totalOrders: number = 0;
-  totalRevenue: number = 0;
-  outOfStockProducts: Product[] = [];
-  recentOrders: any[] = [];
+ 
+  // STATS
+  totalProducts = 0;
+  totalCategories = 0;
+  totalOrders = 0;
+  totalRevenue = 0;
 
-  // UI
-  activeTab: 'overview' | 'products' | 'orders' | 'categories' = 'overview';
-  chartInstance: any;
+chartPeriod: 'monthly' | 'yearly' = 'monthly';
+chartColor = '#007bff';
+monthlyData = {
+  labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+  values: [1200, 1800, 1400, 2200, 2600, 3000]
+};
+
+yearlyData = {
+  labels: ['2021', '2022', '2023', '2024'],
+  values: [12000, 18000, 24000, 31000]
+};
+
+  // CHART DATA
+  monthlyLabels: string[] = [];
+  monthlyRevenue: number[] = [];
+
+  chartType: ChartType = 'bar';
+  private mainChart?: Chart;
+
+  @ViewChild('mainCanvas') mainCanvas!: ElementRef<HTMLCanvasElement>;
+chart!: Chart;
 
   constructor(
     private productService: ProductServiceService,
-    private categoryService: CategoryServiceService
+    private categoryService: CategoryServiceService,
+    private orderService: OrderServiceService
   ) {}
 
-  @Input() graph = {
-    id: 1,
-    format: 'chart',
-    width: 800,
-    height: 400
-  };
-
-  @ViewChild('mainCanvas') mainCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('pieCanvas') pieCanvas!: ElementRef<HTMLCanvasElement>;
-
-  private mainChart?: Chart;
-  private pieChart?: Chart;
-
-  // current selected chart type (three options)
-  chartType: ChartType = 'bar';
-
-  // example data — replace with your real series/labels
-  private sampleLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-  private sampleValues = [1200, 1500, 1100, 1700, 1900, 1400];
-
-  onChartTypeChange(type: string) {
-    this.chartType = type as ChartType;
-    this.renderMainChart(type);
-  }
-
   ngAfterViewInit(): void {
-    // render both charts after view init
-    this.renderMainChart(this.chartType || 'bar'); // chartType may be your component state
-    this.renderPieChart();
-  }
-
-  ngOnDestroy(): void {
-    if (this.mainChart) { this.mainChart.destroy(); }
-    if (this.pieChart) { this.pieChart.destroy(); }
-    // Clean up chart when component is destroyed
-    if (this.chartInstance) {
-      this.chartInstance.destroy();
-    }
-  }
-
-  ngOnInit(): void {
     this.loadDashboardData();
-  }
-
-  goToProducts(): void {
-    this.activeTab = 'products';
-    setTimeout(() => {
-      document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }
-
-  goToCategories(): void {
-    this.activeTab = 'categories';
-    setTimeout(() => {
-      document.getElementById('categories-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }
-
-
-    goToOrders(): void {
-    this.activeTab = 'orders';
-    setTimeout(() => {
-      document.getElementById('orders-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }
-
-  goToOverview(): void {
-    this.activeTab = 'overview';
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 80);
   }
 
   loadDashboardData(): void {
     this.loadProducts();
     this.loadCategories();
-    this.loadStats();
+    this.loadOrdersAndRevenue();
   }
 
+  // PRODUCTS
   loadProducts(): void {
-    this.productService.getAllProducts().subscribe({
-      next: (data) => {
-        this.totalProducts = data.length;
-        this.outOfStockProducts = data.filter(p => p.stock === 0);
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des produits', error);
-      }
+    this.productService.getAllProducts().subscribe(data => {
+      this.totalProducts = data.length;
     });
   }
 
+  // CATEGORIES
   loadCategories(): void {
-    this.categoryService.getAllCategories().subscribe({
-      next: (data) => {
-        this.totalCategories = data.length;
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des catégories', error);
-      }
+    this.categoryService.getAllCategories().subscribe(data => {
+      this.totalCategories = data.length;
     });
   }
 
-  loadStats(): void {
-    this.totalOrders = 1;
-    this.totalRevenue = 8000;
-    this.recentOrders = [
-      {
-        id: 1,
-        amount: 8000,
-        date: '11/04/2025 02:00:00',
-        status: 'CREATED',
-        itemCount: 2
-      }
-    ];
+  // ORDERS + REVENUE
+  loadOrdersAndRevenue(): void {
+    this.orderService.getAll().subscribe((orders: Order[]) => {
+
+      // ONLY DELIVERED ORDERS
+      const deliveredOrders = orders.filter(
+        o => o.state === OrderState.DELIVERED
+      );
+
+      this.totalOrders = deliveredOrders.length;
+
+      this.totalRevenue = deliveredOrders.reduce(
+        (sum, o) => sum + o.total,
+        0
+      );
+
+      this.buildMonthlyRevenue(deliveredOrders);
+      this.renderChart();
+    });
   }
 
-  private renderMainChart(type: string) {
-    if (!this.mainCanvas) return;
+  // GROUP BY MONTH
+  private buildMonthlyRevenue(orders: Order[]) {
+    const map = new Map<string, number>();
+
+    orders.forEach(order => {
+      const date = new Date(order.createdAt);
+      const key = date.toLocaleString('en-US', {
+        month: 'short',
+        year: 'numeric'
+      });
+
+      map.set(key, (map.get(key) || 0) + order.total);
+    });
+
+    this.monthlyLabels = Array.from(map.keys());
+    this.monthlyRevenue = Array.from(map.values());
+  }
+
+  // CHART RENDER
+  private renderChart() {
     if (this.mainChart) {
       this.mainChart.destroy();
-      this.mainChart = undefined;
     }
 
-    const cfg: ChartConfiguration = {
-      type: type as any,
+    const config: ChartConfiguration = {
+      type: this.chartType,
       data: {
-        labels: this.sampleLabels,
-        datasets: [{
-          label: 'Ventes',
-          data: this.sampleValues,
-          backgroundColor: type === 'pie'
-            ? [
-                '#e90e45ff','#06b6d4','#6bb208ff','#bf0fe2ff','#38bdf8','#0369a1'
-              ]
-            : 'rgba(12, 125, 46, 0.7)',
-          borderColor: 'rgba(2,6,23,0.06)',
-          borderWidth: 1
-        }]
+        labels: this.monthlyLabels,
+        datasets: [
+          {
+            label: 'Revenu (TND)',
+            data: this.monthlyRevenue,
+            backgroundColor:
+              this.chartType === 'pie'
+                ? ['#2563eb', '#16a34a', '#f97316', '#9333ea']
+                : 'rgba(37,99,235,0.6)',
+            borderWidth: 1
+          }
+        ]
       },
       options: {
         responsive: true,
-        plugins: { legend: { display: type === 'pie' } },
-        scales: (type === 'pie') ? undefined : {
-          x: { beginAtZero: true },
-          y: { beginAtZero: true }
-        }
+        plugins: {
+          legend: { display: this.chartType === 'pie' }
+        },
+        scales:
+          this.chartType === 'pie'
+            ? undefined
+            : {
+                y: { beginAtZero: true }
+              }
       }
     };
 
-    this.mainChart = new Chart(this.mainCanvas.nativeElement.getContext('2d')!, cfg);
+    this.mainChart = new Chart(
+      this.mainCanvas.nativeElement,
+      config
+    );
   }
 
-  private renderPieChart() {
-    if (!this.pieCanvas) return;
-    if (this.pieChart) {
-      this.pieChart.destroy();
-      this.pieChart = undefined;
-    }
-
-    const cfg: ChartConfiguration = {
-      type: 'line',
-      data: {
-        labels: this.sampleLabels,
-        datasets: [{
-          data: this.sampleValues,
-          backgroundColor: [
-            '#0ea5e9','#d42806ff','#0891b2','#6606edff','#38bdf8','#4dcd07ff'
-          ]
-        }]
-      },
-      options: { responsive: true, plugins: { legend: { position: 'right' } } }
-    };
-
-    this.pieChart = new Chart(this.pieCanvas.nativeElement.getContext('2d')!, cfg);
+  // CHANGE CHART TYPE
+  onChartTypeChange(type: string) {
+    this.chartType = type as ChartType;
+    this.renderChart();
   }
+
+
+  updateChart(data: any) {
+  this.chart.data.labels = data.labels;
+  this.chart.data.datasets[0].data = data.values;
+  this.chart.update();
+}
+
+
+changePeriod(period: 'monthly' | 'yearly') {
+  this.chartPeriod = period;
+
+  if (period === 'monthly') {
+    this.updateChart(this.monthlyData);
+  } else {
+    this.updateChart(this.yearlyData);
+  }
+}
+changeColor(event: Event) {
+  const color = (event.target as HTMLInputElement).value;
+  this.chartColor = color;
+
+  this.chart.data.datasets[0].backgroundColor = color;
+  this.chart.data.datasets[0].borderColor = color;
+  this.chart.update();
+}
+
+
+
+exportAsPNG() {
+  const canvas = this.mainCanvas.nativeElement;
+  const link = document.createElement('a');
+  link.href = canvas.toDataURL('image/png');
+  link.download = 'revenus.png';
+  link.click();
+}
+
+
+exportAsPDF() {
+  const canvas = this.mainCanvas.nativeElement;
+  const imgData = canvas.toDataURL('image/png');
+
+  const pdf = new jsPDF('landscape');
+  pdf.text('Revenus', 15, 15);
+  pdf.addImage(imgData, 'PNG', 15, 25, 260, 140);
+  pdf.save('revenus.pdf');
+}
+
+
 }
 
 

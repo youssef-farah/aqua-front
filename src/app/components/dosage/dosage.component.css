@@ -1,0 +1,436 @@
+.pool-calculator-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.calculator-card {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  padding: 30px;
+  color: white;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.droplet-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.header h1 {
+  margin: 0 0 5px 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.header p {
+  margin: 0;
+  color: #bbdefb;
+  font-size: 14px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  background: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+}
+
+.tab svg {
+  width: 20px;
+  height: 20px;
+}
+
+.tab:hover {
+  background: #eeeeee;
+}
+
+.tab.active {
+  background: #1976d2;
+  color: white;
+}
+
+/* Content */
+.content {
+  padding: 30px;
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 30px;
+}
+
+.section-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+/* Button Grids */
+.button-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.button-grid.four-cols {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.button-grid.two-cols {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.option-button {
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.option-button:hover {
+  border-color: #1976d2;
+  background: #e3f2fd;
+}
+
+.option-button.active {
+  border-color: #1976d2;
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+/* Input Grid */
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.input-group input {
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #1976d2;
+  background: #fafafa;
+}
+
+.input-group input::placeholder {
+  color: #bbb;
+}
+
+/* Calculate Button */
+.calculate-button {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+  margin-top: 20px;
+}
+
+.calculate-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4);
+}
+
+.calculate-button:active {
+  transform: translateY(0);
+}
+
+/* Result Box */
+.result-box {
+  margin-top: 24px;
+  padding: 30px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%);
+  border: 2px solid #1976d2;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.result-label {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.result-value {
+  margin: 0;
+  font-size: 48px;
+  font-weight: 700;
+  color: #1565c0;
+}
+
+.result-secondary {
+  margin: 10px 0 0 0;
+  font-size: 24px;
+  color: #1976d2;
+}
+
+/* Alerts */
+.alert {
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.alert-warning {
+  background: #fff3e0;
+  border: 2px solid #ffb74d;
+  color: #e65100;
+}
+
+.alert-info {
+  background: #e3f2fd;
+  border: 2px solid #1976d2;
+  color: #0d47a1;
+}
+
+/* Dosages Grid */
+.dosages-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.dosage-card {
+  padding: 20px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.dosage-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dosage-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.dosage-icon.ph-plus {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.dosage-icon.ph-minus {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+}
+
+.dosage-icon.chlorine {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+}
+
+.dosage-icon.alkalinity {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+}
+
+.dosage-info {
+  flex: 1;
+}
+
+.dosage-label {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.dosage-value {
+  margin: 0 0 4px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+}
+
+.dosage-desc {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.no-dosage {
+  grid-column: 1 / -1;
+  padding: 30px;
+  text-align: center;
+  background: #e8f5e9;
+  border: 2px solid #4caf50;
+  border-radius: 12px;
+  color: #2e7d32;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pool-calculator-container {
+    padding: 10px;
+  }
+  
+  .header {
+    padding: 20px;
+  }
+  
+  .header h1 {
+    font-size: 22px;
+  }
+  
+  .content {
+    padding: 20px;
+  }
+  
+  .button-grid.four-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .input-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .result-value {
+    font-size: 36px;
+  }
+  
+  .dosages-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab span {
+    display: none;
+  }
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f7fb;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #1e4f91;
+  margin-bottom: 20px;
+}
+
+h3 {
+  color: #2c6fb7;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #333;
+  line-height: 1.6;
+}
+
+.section {
+  margin-top: 25px;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+ul li {
+  margin-bottom: 8px;
+}

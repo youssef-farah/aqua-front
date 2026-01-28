@@ -1,15 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, ChangeDetectorRef, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from '../../models/user';
 import { UserServiceService } from '../../services/user-service.service';
+import { GoogleAuthService } from '../../services/google-auth.service';
+import { Order, OrderState } from '../../models/order';
+import { OrderServiceService } from '../../services/order-service.service';
 
 @Component({
   selector: 'app-compte',
   templateUrl: './compte.component.html',
   styleUrl: './compte.component.css'
-})export class CompteComponent implements OnInit {
+})
+export class CompteComponent implements OnInit, AfterViewInit {
+  @ViewChild('googleLoginButton') googleLoginButton!: ElementRef;
+  @ViewChild('googleRegisterButton') googleRegisterButton!: ElementRef;
+
+  googleLoading = false;
+  private googleSDKLoaded = false;
+  
+  // Navigation
+  activeSection: 'orders' | 'personal' | 'addresses' = 'personal';
+  
+  // Auth tabs
   activeTab: 'login' | 'register' = 'login';
   loginForm: FormGroup;
   registerForm: FormGroup;
@@ -18,6 +33,7 @@ import { UserServiceService } from '../../services/user-service.service';
   loading = false;
   updating = false;
   logoutLoading = false;
+  ordersLoading = false;
   
   errorMessage: string = '';
   successMessage: string = '';
@@ -25,41 +41,42 @@ import { UserServiceService } from '../../services/user-service.service';
   isLoggedIn = false;
   currentUser: any = null;
   currentUser2: any = null;
-registerStep: 1 | 2 = 1;
-
+  registerStep: 1 | 2 = 1;
+  
+  // Orders
+  userOrders: Order[] = [];
+  selectedOrder: Order | null = null;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private userService: UserServiceService,
-    public router: Router
+    private orderService: OrderServiceService,
+    public router: Router,
+    private googleAuthService: GoogleAuthService,
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    // Login form
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
 
-    // Register form
-  this.registerForm = this.fb.group({
-  nom: ['', [Validators.required, Validators.minLength(2)]],
-  prenom: ['', [Validators.required, Validators.minLength(2)]],
-  email: ['', [Validators.required, Validators.email]],
-  password: ['', [Validators.required, Validators.minLength(6)]],
+    this.registerForm = this.fb.group({
+      nom: ['', [Validators.required, Validators.minLength(2)]],
+      prenom: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      telephone: ['', [Validators.pattern(/^[0-9+\s-()]*$/)]],
+      adresse: this.fb.group({
+        country: [''],
+        city: [''],
+        street: [''],
+        postalCode: [''],
+        houseNumber: ['']
+      })
+    });
 
-  telephone: ['', [Validators.pattern(/^[0-9+\s-()]*$/)]],
-
-  adresse: this.fb.group({
-    country: [''],
-    city: [''],
-    street: [''],
-    postalCode: [''],
-    houseNumber: ['']
-  })
-});
-
-
-    // Combined account form for display and update
     this.accountForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
       prenom: ['', [Validators.required, Validators.minLength(2)]],
@@ -75,47 +92,223 @@ registerStep: 1 | 2 = 1;
   }
 
   ngOnInit(): void {
-
-
-    
     this.isLoggedIn = this.authService.isLoggedIn();
     
     if (this.isLoggedIn) {
       this.currentUser = this.authService.getFullUser();
       this.loadUserData();
+      this.loadUserOrders();
     }
 
-    // Subscribe to login status changes
     this.authService.isLoggedIn$().subscribe(loggedIn => {
       this.isLoggedIn = loggedIn;
       if (loggedIn) {
         this.currentUser = this.authService.getFullUser();
         this.loadUserData();
+        this.loadUserOrders();
       } else {
         this.currentUser = null;
         this.currentUser2 = null;
+        this.userOrders = [];
         this.accountForm.reset();
       }
     });
+
+    // Initialize Google Sign-In with a callback to track when it's ready
+    // Only in browser environment
+    if (isPlatformBrowser(this.platformId)) {
+      this.googleAuthService.initializeGoogleSignIn(
+        this.handleGoogleSignIn.bind(this)
+      );
+      
+      // Wait for Google SDK to load before marking as ready
+      this.waitForGoogleSDK();
+    }
   }
 
+  ngAfterViewInit(): void {
+    // Wait for SDK to be loaded before rendering
+    this.tryRenderGoogleButtons();
+  }
+
+  private waitForGoogleSDK(): void {
+    // Only run in browser
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    // Check if google.accounts is available
+    const checkGoogleSDK = setInterval(() => {
+      if (typeof (window as any).google !== 'undefined' && 
+          (window as any).google?.accounts?.id) {
+        this.googleSDKLoaded = true;
+        clearInterval(checkGoogleSDK);
+        this.tryRenderGoogleButtons();
+      }
+    }, 100);
+
+    // Timeout after 10 seconds
+    setTimeout(() => {
+      clearInterval(checkGoogleSDK);
+      if (!this.googleSDKLoaded) {
+        console.warn('Google SDK failed to load within 10 seconds');
+      }
+    }, 10000);
+  }
+
+  private tryRenderGoogleButtons(): void {
+    // Only try to render if SDK is loaded and we're in browser
+    if (!this.googleSDKLoaded || !isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    setTimeout(() => {
+      if (this.googleLoginButton && this.activeTab === 'login') {
+        this.renderGoogleButton(this.googleLoginButton.nativeElement);
+      }
+      if (this.googleRegisterButton && this.activeTab === 'register' && this.registerStep === 1) {
+        this.renderGoogleButton(this.googleRegisterButton.nativeElement);
+      }
+      this.cdr.detectChanges();
+    }, 200);
+  }
+
+  private renderGoogleButton(element: HTMLElement): void {
+    if (element && this.googleSDKLoaded && isPlatformBrowser(this.platformId)) {
+      try {
+        this.googleAuthService.renderButton(element, {
+          width: element.offsetWidth || 300
+        });
+      } catch (error) {
+        console.error('Error rendering Google button:', error);
+      }
+    }
+  }
+
+  // Navigation
+  navigateToSection(section: 'orders' | 'personal' | 'addresses'): void {
+    this.activeSection = section;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  // Load user orders
+  loadUserOrders(): void {
+    if (this.currentUser && this.currentUser.id_user) {
+      this.ordersLoading = true;
+      this.orderService.getByUserId(this.currentUser.id_user).subscribe({
+        next: (orders: any) => {
+          this.ordersLoading = false;
+          // Handle both single order and array response
+          this.userOrders = Array.isArray(orders) ? orders : [orders];
+          console.log('User orders:', this.userOrders);
+        },
+        error: (error) => {
+          this.ordersLoading = false;
+          console.error('Error loading orders:', error);
+          this.userOrders = [];
+        }
+      });
+    }
+  }
+
+  getOrderStateLabel(state: OrderState): string {
+    const labels: { [key in OrderState]: string } = {
+      [OrderState.CREATED]: 'Créée',
+      [OrderState.CONFIRMED]: 'Confirmée',
+      [OrderState.SHIPPED]: 'Expédiée',
+      [OrderState.DELIVERED]: 'Livrée',
+      [OrderState.CANCELLED]: 'Annulée'
+    };
+    return labels[state] || state;
+  }
+
+  getOrderStateClass(state: OrderState): string {
+    const classes: { [key in OrderState]: string } = {
+      [OrderState.CREATED]: 'order-created',
+      [OrderState.CONFIRMED]: 'order-confirmed',
+      [OrderState.SHIPPED]: 'order-shipped',
+      [OrderState.DELIVERED]: 'order-delivered',
+      [OrderState.CANCELLED]: 'order-cancelled'
+    };
+    return classes[state] || '';
+  }
+
+  formatDate(date: Date): string {
+    return new Date(date).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  handleGoogleSignIn(response: any): void {
+    if (response.credential) {
+      this.googleLoading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
+
+      this.authService.loginWithGoogle(response.credential).subscribe({
+        next: (authResponse) => {
+          this.googleLoading = false;
+          this.successMessage = 'Connexion avec Google réussie !';
+          this.isLoggedIn = true;
+          this.currentUser = this.authService.getFullUser();
+          this.loadUserData();
+          this.loadUserOrders();
+
+          setTimeout(() => {
+            const userRole = this.authService.getUserRole();
+            if (userRole === 'ADMIN') {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/']);
+            }
+          }, 1500);
+        },
+        error: (error) => {
+          this.googleLoading = false;
+          console.error('Google login failed', error);
+          
+          if (error.status === 400) {
+            this.errorMessage = 'Token Google invalide. Veuillez réessayer.';
+          } else if (error.status === 0) {
+            this.errorMessage = 'Impossible de se connecter au serveur';
+          } else {
+            this.errorMessage = 'Échec de la connexion avec Google. Veuillez réessayer.';
+          }
+        }
+      });
+    }
+  }
+
+  switchTab(tab: 'login' | 'register'): void {
+    this.activeTab = tab;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Re-render Google button for the active tab
+    this.tryRenderGoogleButtons();
+  }
 
   goToStep(step: 1 | 2): void {
-  this.registerStep = step;
-}
+    this.registerStep = step;
+    
+    // Re-render Google button when going back to step 1
+    if (step === 1) {
+      this.tryRenderGoogleButtons();
+    }
+  }
 
-isStep1Valid(): boolean {
-  return (
-    this.registerForm.get('nom')?.valid &&
-    this.registerForm.get('prenom')?.valid &&
-    this.registerForm.get('email')?.valid &&
-    this.registerForm.get('password')?.valid
-  );
-}
+  isStep1Valid(): boolean {
+    return (
+      this.registerForm.get('nom')?.valid &&
+      this.registerForm.get('prenom')?.valid &&
+      this.registerForm.get('email')?.valid &&
+      this.registerForm.get('password')?.valid
+    );
+  }
 
-  /**
-   * Load full user data from backend
-   */
   private loadUserData(): void {
     if (this.currentUser && this.currentUser.id_user) {
       this.userService.getUserById(this.currentUser.id_user).subscribe({
@@ -126,18 +319,13 @@ isStep1Valid(): boolean {
         },
         error: (error) => {
           console.error('Error loading user data:', error);
-          // Fallback to currentUser if API fails
           this.populateAccountForm();
         }
       });
     }
   }
 
-  /**
-   * Populate account form with current user data
-   */
   private populateAccountForm(): void {
-    // Use currentUser2 (full data) if available, otherwise fallback to currentUser
     const userData = this.currentUser2 || this.currentUser;
     
     if (userData) {
@@ -156,9 +344,6 @@ isStep1Valid(): boolean {
     }
   }
 
-  /**
-   * Update user account information
-   */
   onUpdateAccount(): void {
     if (this.accountForm.invalid) {
       this.markFormGroupTouched(this.accountForm);
@@ -169,12 +354,11 @@ isStep1Valid(): boolean {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // ✅ Create a complete User object matching the backend User entity
     const userUpdate: User = {
       id_user: this.currentUser.id_user,
-      mail: this.currentUser.mail, // Keep existing email
-      password: this.currentUser.password, // Keep existing password (hashed)
-      role: this.currentUser.role, // Keep existing role
+      mail: this.currentUser.mail,
+      password: this.currentUser.password,
+      role: this.currentUser.role,
       nom: this.accountForm.value.nom,
       prenom: this.accountForm.value.prenom,
       telephone: this.accountForm.value.telephone,
@@ -187,15 +371,11 @@ isStep1Valid(): boolean {
       }
     };
 
-    console.log('📤 Sending update:', userUpdate);
-    console.log('📤 Sending update JSON:', JSON.stringify(userUpdate));
-
     this.userService.updateUser(this.currentUser.id_user, userUpdate).subscribe({
       next: (response) => {
         this.updating = false;
         this.successMessage = "Vos informations ont été mises à jour avec succès !";
         
-        // Update both user objects
         this.currentUser = { ...this.currentUser, ...response };
         this.currentUser2 = { ...this.currentUser2, ...response };
         
@@ -205,7 +385,7 @@ isStep1Valid(): boolean {
       },
       error: (error) => {
         this.updating = false;
-        console.error('❌ Update error:', error);
+        console.error('Update error:', error);
         
         if (error.status === 401 || error.status === 403) {
           this.errorMessage = 'Session expirée. Veuillez vous reconnecter.';
@@ -246,6 +426,7 @@ isStep1Valid(): boolean {
         this.isLoggedIn = true;
         this.currentUser = this.authService.getCurrentUser();
         this.loadUserData();
+        this.loadUserOrders();
         
         this.loginForm.reset();
         
@@ -284,29 +465,29 @@ isStep1Valid(): boolean {
     this.successMessage = '';
 
     const userData = {
-  nom: this.registerForm.value.nom,
-  prenom: this.registerForm.value.prenom,
-  email: this.registerForm.value.email,
-  password: this.registerForm.value.password,
-  telephone: this.registerForm.value.telephone,
-  adresse: this.registerForm.value.adresse
-};
-this.registerStep = 1;
-
+      nom: this.registerForm.value.nom,
+      prenom: this.registerForm.value.prenom,
+      email: this.registerForm.value.email,
+      password: this.registerForm.value.password,
+      telephone: this.registerForm.value.telephone,
+      adresse: this.registerForm.value.adresse
+    };
+    
+    this.registerStep = 1;
 
     this.authService.signup(userData).subscribe({
       next: (response) => {
-        console.log(userData);
         this.loading = false;
         this.successMessage = 'Compte créé avec succès ! Redirection...';
         this.isLoggedIn = true;
         this.currentUser = this.authService.getFullUser();
         this.loadUserData();
+        this.loadUserOrders();
         
         this.registerForm.reset();
         
         setTimeout(() => {
-          this.router.navigate(['/compte']);
+          this.router.navigate(['/redirectpage']);
         }, 1500);
       },
       error: (error) => {
@@ -337,6 +518,7 @@ this.registerStep = 1;
         this.isLoggedIn = false;
         this.currentUser = null;
         this.currentUser2 = null;
+        this.userOrders = [];
         this.accountForm.reset();
         
         setTimeout(() => {
@@ -351,6 +533,7 @@ this.registerStep = 1;
         this.isLoggedIn = false;
         this.currentUser = null;
         this.currentUser2 = null;
+        this.userOrders = [];
         this.accountForm.reset();
         this.errorMessage = 'Déconnexion effectuée (erreur serveur ignorée)';
       }

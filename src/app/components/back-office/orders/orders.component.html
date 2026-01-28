@@ -40,48 +40,62 @@
           <th>État</th>
           <th>Articles</th>
           <th>Client</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
       <tbody>
-      <tr *ngFor="let order of filteredOrders">
-  <td>{{ order.id }}</td>
-  <td>{{ order.createdAt | date:'shortDate' }}</td>
-  <td class="price">{{ order.total | currency:'TND' }}</td>
-  <td>
-    <select
-      [ngModel]="order.state"
-      (ngModelChange)="onStateChange(order, $event)"
-      class="state-select"
-    >
-      <option *ngFor="let s of orderStates" [value]="s">{{ s }}</option>
-    </select>
-  </td>
-  <td>
-    <div class="items-container">
-      <ul *ngIf="order.items && order.items.length > 0">
-        <li *ngFor="let item of order.items">
-          <strong>{{ item.product.titre }}</strong>
-          — Qty: {{ item.quantity }}
-          — Unit: {{ item.unitPrice | currency:'TND' }}
-          — Subtotal: {{ item.subTotal | currency:'TND' }}
-        </li>
-      </ul>
-      <p *ngIf="!order.items || order.items.length === 0" class="no-items">
-        Aucun article.
-      </p>
-    </div>
-  </td>
-  
+        <tr *ngFor="let order of filteredOrders">
+          <td>{{ order.id }}</td>
+          <td>{{ order.createdAt | date:'shortDate' }}</td>
+          <td class="price">{{ order.total | currency:'TND' }}</td>
+          <td>
+            <select
+              [ngModel]="order.state"
+              (ngModelChange)="onStateChange(order, $event)"
+              class="state-select"
+            >
+              <option *ngFor="let s of orderStates" [value]="s">{{ s }}</option>
+            </select>
+          </td>
+          <td>
+            <div class="items-container">
+              <ul *ngIf="order.items && order.items.length > 0">
+                <li *ngFor="let item of order.items">
+                  <strong>{{ item.product.titre }}</strong>
+                  — Qty: {{ item.quantity }}
+                  — Unit: {{ item.unitPrice | currency:'TND' }}
+                  — Subtotal: {{ item.subTotal | currency:'TND' }}
+                </li>
+              </ul>
+              <p *ngIf="!order.items || order.items.length === 0" class="no-items">
+                Aucun article.
+              </p>
+            </div>
+          </td>
+          
+          <!-- Client column -->
+          <td *ngIf="order.user">
+            {{ order.user.nom }} {{ order.user.prenom }}<br />
+            {{order.user.adresse.country}} 
+            {{order.user.adresse.city}} 
+            {{order.user.adresse.postalCode}} 
+            {{order.user.adresse.street}}<br />
+            <small>{{ order.user.mail }}</small>
+          </td>
+          <td *ngIf="!order.user">—</td>
 
-  <!-- New column for user details -->
-  <td *ngIf="order.user">
-    {{ order.user.nom }} {{ order.user.prenom }}<br />
-    <small>{{ order.user.mail }}</small>
-  </td>
-  <td *ngIf="!order.user">—</td>
-</tr>
-
+          <!-- NEW: Actions column with PDF export button -->
+          <td>
+            <button 
+              class="pdf-btn"
+              (click)="exportOrderToPDF(order)"
+              title="Exporter en PDF"
+            >
+              📄 PDF
+            </button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

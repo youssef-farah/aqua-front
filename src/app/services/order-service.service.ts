@@ -24,6 +24,11 @@ export class OrderServiceService {
     return this.http.get<Order>(`${this.apiUrl}/${id}`);
   }
 
+
+   getByUserId(id: number): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/user/${id}`);
+  }
+
   update(id: number, order: Order): Observable<Order> {
     return this.http.put<Order>(`${this.apiUrl}/${id}`, order);
   }

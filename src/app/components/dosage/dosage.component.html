@@ -1,0 +1,361 @@
+
+<app-navbar></app-navbar>
+<div class="pool-calculator-container">
+  <div class="calculator-card">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-content">
+        <svg class="droplet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+        </svg>
+        <div>
+          <h1>Calculateur Piscine</h1>
+          <p>Calculez le volume et le dosage des produits pour votre piscine</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button 
+        class="tab" 
+        [class.active]="activeTab === 'volume'"
+        (click)="setActiveTab('volume')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="7" width="6" height="11" rx="1"></rect>
+          <path d="M7 12h10M7 16h10"></path>
+        </svg>
+        <span>Volume d'Eau</span>
+      </button>
+      <button 
+        class="tab" 
+        [class.active]="activeTab === 'dosage'"
+        (click)="setActiveTab('dosage')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 2v4m6-4v4M6 8h12M6 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8M6 8H4m14 0h2"></path>
+          <circle cx="12" cy="14" r="2"></circle>
+        </svg>
+        <span>Dosage Produits</span>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Volume Tab -->
+      <div *ngIf="activeTab === 'volume'" class="tab-content">
+        <!-- Shape Selection -->
+        <div class="form-section">
+          <label class="section-label">1. Forme de votre bassin</label>
+          <div class="button-grid four-cols">
+            <button 
+              *ngFor="let opt of [{value: 'rectangular', label: 'Rectangulaire'}, 
+                                   {value: 'round', label: 'Rond'}, 
+                                   {value: 'oval', label: 'Ovale'}, 
+                                   {value: 'other', label: 'Autre'}]"
+              class="option-button"
+              [class.active]="shape === opt.value"
+              (click)="setShape(opt.value)">
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Type -->
+        <div class="form-section">
+          <label class="section-label">2. Type de fond</label>
+          <div class="button-grid two-cols">
+            <button 
+              *ngFor="let opt of [{value: 'flat', label: 'Fond plat'}, 
+                                   {value: 'sloped', label: 'Fond incliné'}]"
+              class="option-button"
+              [class.active]="bottomType === opt.value"
+              (click)="setBottomType(opt.value)">
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Dimensions -->
+        <div class="form-section">
+          <label class="section-label">3. Dimensions de votre bassin</label>
+          <div class="input-grid">
+            <!-- Rectangular -->
+            <ng-container *ngIf="shape === 'rectangular'">
+              <div class="input-group">
+                <label>Longueur (m)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  [(ngModel)]="dimensions.length"
+                  (ngModelChange)="resetVolume()"
+                  placeholder="Ex: 10">
+              </div>
+              <div class="input-group">
+                <label>Largeur (m)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  [(ngModel)]="dimensions.width"
+                  (ngModelChange)="resetVolume()"
+                  placeholder="Ex: 5">
+              </div>
+            </ng-container>
+
+            <!-- Round -->
+            <div *ngIf="shape === 'round'" class="input-group">
+              <label>Diamètre (m)</label>
+              <input 
+                type="number" 
+                step="0.1" 
+                [(ngModel)]="dimensions.diameter"
+                (ngModelChange)="resetVolume()"
+                placeholder="Ex: 6">
+            </div>
+
+            <!-- Oval -->
+            <ng-container *ngIf="shape === 'oval'">
+              <div class="input-group">
+                <label>Longueur (m)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  [(ngModel)]="dimensions.length"
+                  (ngModelChange)="resetVolume()"
+                  placeholder="Ex: 8">
+              </div>
+              <div class="input-group">
+                <label>Largeur (m)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  [(ngModel)]="dimensions.width"
+                  (ngModelChange)="resetVolume()"
+                  placeholder="Ex: 4">
+              </div>
+            </ng-container>
+
+            <!-- Depth -->
+            <ng-container *ngIf="bottomType === 'flat'">
+              <div class="input-group">
+                <label>Profondeur (m)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  [(ngModel)]="dimensions.depth"
+                  (ngModelChange)="resetVolume()"
+                  placeholder="Ex: 1.5">
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="bottomType === 'sloped'">
+              <div class="input-group">
+                <label>Profondeur petit bain (m)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  [(ngModel)]="dimensions.shallowDepth"
+                  (ngModelChange)="resetVolume()"
+                  placeholder="Ex: 1.0">
+              </div>
+              <div class="input-group">
+                <label>Profondeur grand bain (m)</label>
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  [(ngModel)]="dimensions.deepDepth"
+                  (ngModelChange)="resetVolume()"
+                  placeholder="Ex: 2.5">
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <button class="calculate-button" (click)="calculateVolume()">
+          Calculer le Volume
+        </button>
+
+        <div *ngIf="volume" class="result-box">
+          <p class="result-label">Volume total de votre piscine</p>
+          <p class="result-value">{{ volume }} m³</p>
+          <p class="result-secondary">{{ (volume * 1000).toFixed(0) }} litres</p>
+        </div>
+      </div>
+
+      <!-- Dosage Tab -->
+      <div *ngIf="activeTab === 'dosage'" class="tab-content">
+        <div *ngIf="!volume" class="alert alert-warning">
+          ⚠️ Veuillez d'abord calculer le volume de votre piscine dans l'onglet "Volume d'Eau"
+        </div>
+
+        <div *ngIf="volume" class="alert alert-info">
+          📊 Volume de votre piscine: <strong>{{ volume }} m³</strong> ({{ (volume * 1000).toFixed(0) }} litres)
+        </div>
+
+        <div *ngIf="volume" class="form-section">
+          <label class="section-label">Paramètres de l'eau</label>
+          
+          <div class="input-grid">
+            <div class="input-group">
+              <label>pH actuel</label>
+              <input 
+                type="number" 
+                step="0.1" 
+                [(ngModel)]="waterParams.currentPh"
+                placeholder="Ex: 7.0"
+                min="0"
+                max="14">
+            </div>
+            <div class="input-group">
+              <label>pH cible</label>
+              <input 
+                type="number" 
+                step="0.1" 
+                [(ngModel)]="waterParams.targetPh"
+                placeholder="7.4"
+                min="0"
+                max="14">
+            </div>
+
+            <div class="input-group">
+              <label>Chlore actuel (ppm)</label>
+              <input 
+                type="number" 
+                step="0.1" 
+                [(ngModel)]="waterParams.currentChlorine"
+                placeholder="Ex: 0.5">
+            </div>
+            <div class="input-group">
+              <label>Chlore cible (ppm)</label>
+              <input 
+                type="number" 
+                step="0.1" 
+                [(ngModel)]="waterParams.targetChlorine"
+                placeholder="2">
+            </div>
+
+            <div class="input-group">
+              <label>Alcalinité actuelle (ppm)</label>
+              <input 
+                type="number" 
+                step="1" 
+                [(ngModel)]="waterParams.currentAlkalinity"
+                placeholder="Ex: 80">
+            </div>
+            <div class="input-group">
+              <label>Alcalinité cible (ppm)</label>
+              <input 
+                type="number" 
+                step="1" 
+                [(ngModel)]="waterParams.targetAlkalinity"
+                placeholder="120">
+            </div>
+          </div>
+        </div>
+
+        <button 
+          *ngIf="volume"
+          class="calculate-button" 
+          (click)="calculateDosages()">
+          Calculer les Dosages
+        </button>
+
+        <div *ngIf="dosages" class="dosages-grid">
+          <div class="dosage-card" *ngIf="dosages.phPlus > 0">
+            <div class="dosage-icon ph-plus">pH+</div>
+            <div class="dosage-info">
+              <p class="dosage-label">pH Plus</p>
+              <p class="dosage-value">{{ dosages.phPlus }} g</p>
+              <p class="dosage-desc">Carbonate de sodium</p>
+            </div>
+          </div>
+
+          <div class="dosage-card" *ngIf="dosages.phMinus > 0">
+            <div class="dosage-icon ph-minus">pH-</div>
+            <div class="dosage-info">
+              <p class="dosage-label">pH Minus</p>
+              <p class="dosage-value">{{ dosages.phMinus }} g</p>
+              <p class="dosage-desc">Bisulfate de sodium</p>
+            </div>
+          </div>
+
+          <div class="dosage-card" *ngIf="dosages.chlorine > 0">
+            <div class="dosage-icon chlorine">Cl</div>
+            <div class="dosage-info">
+              <p class="dosage-label">Chlore</p>
+              <p class="dosage-value">{{ dosages.chlorine }} g</p>
+              <p class="dosage-desc">Hypochlorite de calcium</p>
+            </div>
+          </div>
+
+          <div class="dosage-card" *ngIf="dosages.alkalinityPlus > 0">
+            <div class="dosage-icon alkalinity">TAC</div>
+            <div class="dosage-info">
+              <p class="dosage-label">Alcalinité</p>
+              <p class="dosage-value">{{ dosages.alkalinityPlus }} g</p>
+              <p class="dosage-desc">Bicarbonate de sodium</p>
+            </div>
+          </div>
+
+          <div *ngIf="dosages.phPlus === 0 && dosages.phMinus === 0 && dosages.chlorine === 0 && dosages.alkalinityPlus === 0" 
+               class="no-dosage">
+            ✅ Votre piscine est équilibrée ! Aucun traitement nécessaire.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <div class="container">
+    <h2>Dosage du chlore pour piscine</h2>
+
+    <p>
+      Grâce à notre calculatrice, vous pouvez calculer facilement le dosage du chlore
+      ainsi que les quantités nécessaires pour maintenir une eau équilibrée et désinfectée.
+    </p>
+
+    <div class="section">
+      <h3>Le chlore dans une piscine</h3>
+      <p>
+        Le chlore est un désinfectant économique et efficace, à condition d’être correctement dosé.
+        Un dosage précis est indispensable pour garantir une bonne qualité de l’eau.
+      </p>
+    </div>
+
+    <div class="section">
+      <h3>Mesurer le taux de chlore</h3>
+      <p>Plusieurs méthodes permettent de contrôler le chlore :</p>
+      <ul>
+        <li>Bandelettes d’analyse</li>
+        <li>Tests colorimétriques</li>
+        <li>Testeurs électroniques</li>
+        <li>Pastilles DPD</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h3>Dosage recommandé</h3>
+      <p>
+        Le dosage dépend du type de chlore utilisé et doit être ajusté en fonction
+        du pH et du volume d’eau de la piscine.
+      </p>
+    </div>
+
+    <div class="section">
+      <h3>Chlore et pH</h3>
+      <p>
+        Un pH compris entre 7,2 et 7,6 permet au chlore d’agir efficacement.
+        Un contrôle régulier est donc essentiel.
+      </p>
+    </div>
+
+    <div class="section">
+      <h3>Conclusion</h3>
+      <p>
+        En respectant les bons dosages et en testant l’eau régulièrement,
+        vous assurez une baignade sûre et agréable.
+      </p>
+    </div>
+  </div>
+
+<app-footer></app-footer>

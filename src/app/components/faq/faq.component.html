@@ -1,0 +1,29 @@
+<div class="faq-container">
+  <h3 class="faq-title">Questions fréquentes</h3>
+
+  <div
+    class="faq-item"
+    *ngFor="let faq of faqs; let i = index"
+  >
+ 
+
+    <!-- Question row -->
+    <div class="faq-question" (click)="toggleQuestion(i)">
+      <span>{{ faq.question }}</span>
+      <i
+        class="fas"
+        [ngClass]="openIndex === i ? 'fa-chevron-up' : 'fa-chevron-down'"
+      ></i>
+    </div>
+
+
+   <!-- Answer (appears ABOVE the question) -->
+    <div
+      class="faq-answer"
+      *ngIf="openIndex === i"
+    >
+      {{ faq.answer }}
+    </div>
+
+  </div>
+</div>

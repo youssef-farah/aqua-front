@@ -7,8 +7,9 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
-
+  isMenuOpen = false;
   constructor(private authService: AuthService) {
+  
 
   }
   navLinks = [
@@ -16,13 +17,22 @@ export class NavbarComponent {
     { to: '/boutique', label: 'Boutique' },
     { to: '/services', label: 'Services' },
     { to: '/contact', label: 'Contact' },
-    { to: '/apropos', label: 'À Propos' },
+    { to: '/offresboutique', label: 'Offres' },
+        { to: '/dosage', label: 'Dosage' },
+
    
   ];
 
   totalItems = 0;
 
 
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu() {
+    this.isMenuOpen = false;
+  }
 
 logout(): void {
   this.authService.logout().subscribe({
