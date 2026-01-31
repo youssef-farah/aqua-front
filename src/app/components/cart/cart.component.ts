@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
+
 import { CartItem, CartService } from '../../services/cart.service';
 import { OrderServiceService } from '../../services/order-service.service';
 import { OrderItemServiceService } from '../../services/order-item-service.service';
-import { Order, OrderState } from '../../models/order';
-import { OrderItem } from '../../models/order-item';
 import { ProductServiceService } from '../../services/product-service.service';
-import { Product } from '../../models/product';
-import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { User } from '../../models/user';
 import { UserServiceService } from '../../services/user-service.service';
 import { PaymentService } from '../../services/payment.service';
+
+import { Order, OrderState } from '../../models/order';
+import { OrderItem } from '../../models/order-item';
 
 @Component({
   selector: 'app-cart',
@@ -20,95 +20,107 @@ import { PaymentService } from '../../services/payment.service';
   styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
+
   cart: CartItem[] = [];
-  isCheckingOut: boolean = false;
-  showLoginModal: boolean = false;
-  showConfirmationModal: boolean = false;
+
+  isCheckingOut = false;
+  showLoginModal = false;
+  showConfirmationModal = false;
+
   currentUser: any = null;
 
   constructor(
     private cartService: CartService,
     private orderService: OrderServiceService,
     private orderItemService: OrderItemServiceService,
-    private pr: ProductServiceService,
-    private router: Router, 
-    private authService: AuthService,private userService:UserServiceService,
-    private paymentService: PaymentService
+    private productService: ProductServiceService,
+    private authService: AuthService,
+    private userService: UserServiceService,
+    private paymentService: PaymentService,
+    private router: Router
   ) {}
+
+  // ================= INIT =================
 
   ngOnInit(): void {
     this.cartService.cart$.subscribe(items => {
       this.cart = items;
     });
-    
-    // Load current user if logged in
+
     if (this.isUserLoggedIn()) {
       this.currentUser = this.authService.getFullUser();
     }
   }
 
-  removeItem(id: number): void {
-    this.cartService.removeItem(id);
-  }
-
-  getTotalPrice(): number {
-    return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-  }
+  // ================= CART =================
 
   removeFromCart(productId: number): void {
     this.cartService.removeItem(productId);
   }
 
+  getTotalPrice(): number {
+    return this.cart.reduce(
+      (total, item) => total + (item.price * item.quantity),
+      0
+    );
+  }
+
+  // ================= AUTH =================
+
   isUserLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
 
-onCheckout(): void {
-  if (this.cart.length === 0) {
-    alert('Your cart is empty!');
-    return;
-  }
+  // ================= CHECKOUT =================
 
-  // Check if user is logged in
-  if (!this.isUserLoggedIn()) {
-    this.showLoginModal = true;
-    return;
-  }
+  onCheckout(): void {
 
-  // Get user ID from auth service
-  const tempUser = this.authService.getFullUser();
-  
-  if (!tempUser || !tempUser.id_user) {
-    console.error('User ID not found');
-    this.showLoginModal = true;
-    return;
-  }
-
-  // Load full user data from backend before showing confirmation modal
-  this.userService.getUserById(tempUser.id_user).subscribe({
-    next: (data) => {
-      this.currentUser = data;
-      console.log('Full user data loaded for checkout:', this.currentUser);
-      this.showConfirmationModal = true;
-    },
-    error: (error) => {
-      console.error('Error loading user data:', error);
-      // Fallback to auth service data if API fails
-      this.currentUser = tempUser;
-      this.showConfirmationModal = true;
+    if (this.cart.length === 0) {
+      alert('Your cart is empty!');
+      return;
     }
-  });
-}
+
+    if (!this.isUserLoggedIn()) {
+      this.showLoginModal = true;
+      return;
+    }
+
+    const tempUser = this.authService.getFullUser();
+
+    if (!tempUser || !tempUser.id_user) {
+      console.error('User ID not found');
+      this.showLoginModal = true;
+      return;
+    }
+
+    // Load full user before confirmation
+    this.userService.getUserById(tempUser.id_user).subscribe({
+      next: (data) => {
+        this.currentUser = data;
+        this.showConfirmationModal = true;
+      },
+      error: () => {
+        this.currentUser = tempUser;
+        this.showConfirmationModal = true;
+      }
+    });
+  }
 
   confirmOrder(): void {
     this.showConfirmationModal = false;
-    this.processCheckout();
+    this.processCheckoutWithPayment();
   }
 
-  processCheckout(): void {
+  // ================= MAIN FLOW =================
+
+  /**
+   * Create Order → Create Items → Initiate Payment
+   */
+  processCheckoutWithPayment(): void {
+
     this.isCheckingOut = true;
 
-    // Step 1: Create the Order
+    // 1️⃣ Create Order
     const order = new Order(
       null,
       new Date(),
@@ -119,82 +131,121 @@ onCheckout(): void {
     );
 
     this.orderService.create(order).subscribe({
+
       next: (createdOrder: Order) => {
-        // Step 2: Create OrderItems for each CartItem
-        const orderItemCreates$ = this.cart.map(cartItem =>
-          this.pr.getProductByCode(cartItem.id).pipe(
+
+        console.log('✅ Order created:', createdOrder);
+
+        // 2️⃣ Create OrderItems
+        const orderItems$ = this.cart.map(cartItem =>
+          this.productService.getProductByCode(cartItem.id).pipe(
             mergeMap(product => {
+
               const orderItem = new OrderItem(
                 null,
                 createdOrder,
                 product,
                 cartItem.quantity,
                 cartItem.price,
-                cartItem.price * cartItem.quantity,
+                cartItem.price * cartItem.quantity
               );
+
               return this.orderItemService.create(orderItem);
             })
           )
         );
-        
-        // Step 3: Wait for all OrderItems to be created
-        forkJoin(orderItemCreates$).subscribe({
-          next: (results) => {
-            console.log('All order items created:', results);
-            alert('Order placed successfully!');
-            
-            // Clear the cart after successful checkout
-             // Better to use service method
-            this.cart = [];
-            this.isCheckingOut = false;
+
+        // 3️⃣ Wait for all items
+        forkJoin(orderItems$).subscribe({
+
+          next: () => {
+            console.log('✅ All order items created');
+            this.initiatePayment(createdOrder.id!);
           },
-          error: (error) => {
-            console.error('Error creating order items:', error);
-            alert('Error placing order. Please try again.');
+
+          error: (err) => {
+            console.error('❌ OrderItems error:', err);
+            alert('Error creating order items');
             this.isCheckingOut = false;
           }
+
         });
+
       },
-      error: (error) => {
-        console.error('Error creating order:', error);
-        alert('Error placing order. Please try again.');
+
+      error: (err) => {
+        console.error('❌ Order error:', err);
+        alert('Error creating order');
         this.isCheckingOut = false;
       }
+
     });
   }
 
-  // Navigate to login/compte page
+  // ================= PAYMENT =================
+
+  /**
+   * Call backend → redirect to Flouci
+   */
+  private initiatePayment(orderId: number): void {
+
+    console.log('💳 Initiating payment for order:', orderId);
+
+    this.paymentService.initiatePayment(orderId).subscribe({
+
+      next: (response) => {
+
+        if (response.success && response.paymentLink) {
+
+          console.log('✅ Payment started');
+
+          // Save for success page
+          sessionStorage.setItem('pendingOrderId', orderId.toString());
+          sessionStorage.setItem('pendingPaymentId', response.paymentId);
+
+          // Clear cart (order is saved)
+          //this.cartService.clearCart();
+          this.cart = [];
+
+          // Redirect to Flouci
+          window.location.href = response.paymentLink;
+
+        } else {
+          throw new Error('Invalid payment response');
+        }
+      },
+
+      error: (err) => {
+        console.error('❌ Payment error:', err);
+
+        alert(
+          'Payment error. Please try again later.\nOrder ID: ' + orderId
+        );
+
+        this.isCheckingOut = false;
+      }
+
+    });
+  }
+
+  // ================= MODALS =================
+
   goToLogin(): void {
-    this.showLoginModal = false;
+    this.closeModal();
     this.router.navigate(['/compte']);
   }
 
-  // Navigate to profile page from confirmation modal
   goToProfile(): void {
-    this.showConfirmationModal = false;
+    this.closeConfirmationModal();
     this.router.navigate(['/compte']);
   }
 
-  // Close login modal
   closeModal(): void {
     this.showLoginModal = false;
   }
 
-  // Close confirmation modal
   closeConfirmationModal(): void {
     this.showConfirmationModal = false;
-  }
-
-
-
-
-    payNow(orderId: number) {
-    this.paymentService.initiatePayment(orderId).subscribe(response => {
-      if (response.success) {
-        // Redirect to Flouci
-        window.location.href = response.paymentLink;
-      }
-    });
   }
 
 }

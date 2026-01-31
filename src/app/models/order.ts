@@ -10,6 +10,7 @@ import { User } from "./user";
             public total: number,
             public user:User,
             public items?: OrderItem[],
+            public payementId?: string
             
         ) {}
     }
