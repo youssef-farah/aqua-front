@@ -43,7 +43,7 @@ const routes: Routes = [
   {path:'services',component: ServicesComponent},
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  {path:'orders', component:OrdersComponent},
+  //{path:'orders', component:OrdersComponent},
     {path:'offresboutique', component:OffresboutiqueComponent},
     {path:'failpay', component:FailpayComponent},
     {path:'succespay', component:SuccespayComponent},

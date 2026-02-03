@@ -1,18 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { CartItem, CartService } from '../../services/cart.service';
-import { OrderServiceService } from '../../services/order-service.service';
-import { OrderItemServiceService } from '../../services/order-item-service.service';
-import { ProductServiceService } from '../../services/product-service.service';
 import { AuthService } from '../../services/auth.service';
 import { UserServiceService } from '../../services/user-service.service';
-import { PaymentService } from '../../services/payment.service';
-
-import { Order, OrderState } from '../../models/order';
-import { OrderItem } from '../../models/order-item';
+import { PaymentService, CartItemDTO, PaymentInitiateRequest } from '../../services/payment.service';
 
 @Component({
   selector: 'app-cart',
@@ -26,18 +19,21 @@ export class CartComponent implements OnInit {
   isCheckingOut = false;
   showLoginModal = false;
   showConfirmationModal = false;
+  showPersonalInfoForm = false;
 
   currentUser: any = null;
+  personalInfoForm!: FormGroup;
+  isUpdatingInfo = false;
+  updateErrorMessage = '';
+  updateSuccessMessage = '';
 
   constructor(
     private cartService: CartService,
-    private orderService: OrderServiceService,
-    private orderItemService: OrderItemServiceService,
-    private productService: ProductServiceService,
     private authService: AuthService,
     private userService: UserServiceService,
     private paymentService: PaymentService,
-    private router: Router
+    private router: Router,
+    private fb: FormBuilder
   ) {}
 
   // ================= INIT =================
@@ -50,6 +46,24 @@ export class CartComponent implements OnInit {
     if (this.isUserLoggedIn()) {
       this.currentUser = this.authService.getFullUser();
     }
+
+    this.initPersonalInfoForm();
+  }
+
+  initPersonalInfoForm(): void {
+    this.personalInfoForm = this.fb.group({
+      nom: ['', Validators.required],
+      prenom: ['', Validators.required],
+      mail: ['', [Validators.required, Validators.email]],
+      telephone: ['', Validators.required],
+      adresse: this.fb.group({
+        country: ['', Validators.required],
+        city: ['', Validators.required],
+        street: ['', Validators.required],
+        houseNumber: ['', Validators.required],
+        postalCode: ['']
+      })
+    });
   }
 
   // ================= CART =================
@@ -69,6 +83,43 @@ export class CartComponent implements OnInit {
 
   isUserLoggedIn(): boolean {
     return this.authService.isLoggedIn();
+  }
+
+  // ================= PERSONAL INFO VALIDATION =================
+
+  hasCompletePersonalInfo(user: any): boolean {
+    if (!user) return false;
+
+    const requiredFields = [
+      user.nom,
+      user.prenom,
+      user.mail,
+      user.telephone,
+      user.adresse?.country,
+      user.adresse?.city,
+      user.adresse?.street,
+      user.adresse?.houseNumber
+    ];
+
+    return requiredFields.every(field => field && field.toString().trim() !== '');
+  }
+
+  populateFormWithUserData(): void {
+    if (this.currentUser) {
+      this.personalInfoForm.patchValue({
+        nom: this.currentUser.nom || '',
+        prenom: this.currentUser.prenom || '',
+        mail: this.currentUser.mail || '',
+        telephone: this.currentUser.telephone || '',
+        adresse: {
+          country: this.currentUser.adresse?.country || '',
+          city: this.currentUser.adresse?.city || '',
+          street: this.currentUser.adresse?.street || '',
+          houseNumber: this.currentUser.adresse?.housenumber || this.currentUser.adresse?.houseNumber || '',
+          postalCode: this.currentUser.adresse?.postalCode || ''
+        }
+      });
+    }
   }
 
   // ================= CHECKOUT =================
@@ -97,117 +148,156 @@ export class CartComponent implements OnInit {
     this.userService.getUserById(tempUser.id_user).subscribe({
       next: (data) => {
         this.currentUser = data;
-        this.showConfirmationModal = true;
+        this.checkUserInfoAndProceed();
       },
       error: () => {
         this.currentUser = tempUser;
-        this.showConfirmationModal = true;
+        this.checkUserInfoAndProceed();
+      }
+    });
+  }
+
+  checkUserInfoAndProceed(): void {
+    if (this.hasCompletePersonalInfo(this.currentUser)) {
+      // User has complete info, show confirmation modal
+      this.showConfirmationModal = true;
+    } else {
+      // User info incomplete, show personal info form
+      this.populateFormWithUserData();
+      this.showPersonalInfoForm = true;
+    }
+  }
+
+  onUpdatePersonalInfo(): void {
+    if (this.personalInfoForm.invalid) {
+      this.markFormGroupTouched(this.personalInfoForm);
+      this.updateErrorMessage = 'Veuillez remplir tous les champs obligatoires.';
+      return;
+    }
+
+    this.isUpdatingInfo = true;
+    this.updateErrorMessage = '';
+    this.updateSuccessMessage = '';
+
+    const userUpdate: any = {
+      id_user: this.currentUser.id_user,
+      mail: this.personalInfoForm.value.mail,
+      password: this.currentUser.password,
+      role: this.currentUser.role,
+      nom: this.personalInfoForm.value.nom,
+      prenom: this.personalInfoForm.value.prenom,
+      telephone: this.personalInfoForm.value.telephone,
+      adresse: {
+        street: this.personalInfoForm.value.adresse.street || '',
+        houseNumber: this.personalInfoForm.value.adresse.houseNumber || '',
+        city: this.personalInfoForm.value.adresse.city || '',
+        postalCode: this.personalInfoForm.value.adresse.postalCode || '',
+        country: this.personalInfoForm.value.adresse.country || ''
+      }
+    };
+
+    this.userService.updateUser(this.currentUser.id_user, userUpdate).subscribe({
+      next: (response) => {
+        this.isUpdatingInfo = false;
+        this.updateSuccessMessage = 'Informations mises à jour avec succès !';
+        
+        // Update current user with new data
+        this.currentUser = { ...this.currentUser, ...response };
+        
+        // Close personal info form and show confirmation modal
+        setTimeout(() => {
+          this.showPersonalInfoForm = false;
+          this.showConfirmationModal = true;
+          this.updateSuccessMessage = '';
+        }, 1000);
+      },
+      error: (error) => {
+        this.isUpdatingInfo = false;
+        console.error('Update error:', error);
+        
+        if (error.status === 401 || error.status === 403) {
+          this.updateErrorMessage = 'Session expirée. Veuillez vous reconnecter.';
+        } else if (error.status === 400) {
+          this.updateErrorMessage = 'Données invalides. Veuillez vérifier vos informations.';
+        } else if (error.status === 0) {
+          this.updateErrorMessage = 'Impossible de se connecter au serveur';
+        } else {
+          this.updateErrorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+        }
+      }
+    });
+  }
+
+  markFormGroupTouched(formGroup: FormGroup): void {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      control?.markAsTouched();
+
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
       }
     });
   }
 
   confirmOrder(): void {
     this.showConfirmationModal = false;
-    this.processCheckoutWithPayment();
+    this.initiatePaymentWithoutOrder();
   }
 
-  // ================= MAIN FLOW =================
+  // ================= NEW PAYMENT FLOW =================
 
   /**
-   * Create Order → Create Items → Initiate Payment
+   * NEW FLOW: Generate payment link without creating order
+   * Cart stays intact until payment succeeds
    */
-  processCheckoutWithPayment(): void {
+  private initiatePaymentWithoutOrder(): void {
 
     this.isCheckingOut = true;
 
-    // 1️⃣ Create Order
-    const order = new Order(
-      null,
-      new Date(),
-      new Date(),
-      OrderState.CREATED,
-      this.getTotalPrice(),
-      this.authService.getFullUser()!
-    );
+    const user = this.authService.getFullUser();
+    if (!user || !user.id_user) {
+      alert('User information not found');
+      this.isCheckingOut = false;
+      return;
+    }
 
-    this.orderService.create(order).subscribe({
+    // Convert cart to DTO format
+    const cartItemsDTO: CartItemDTO[] = this.cart.map(item => ({
+      productId: item.id,
+      quantity: item.quantity,
+      price: item.price
+    }));
 
-      next: (createdOrder: Order) => {
+    const request: PaymentInitiateRequest = {
+      userId: user.id_user,
+      totalAmount: this.getTotalPrice(),
+      cartItems: cartItemsDTO
+    };
 
-        console.log('✅ Order created:', createdOrder);
+    console.log('💳 Initiating payment (no order created yet)');
 
-        // 2️⃣ Create OrderItems
-        const orderItems$ = this.cart.map(cartItem =>
-          this.productService.getProductByCode(cartItem.id).pipe(
-            mergeMap(product => {
-
-              const orderItem = new OrderItem(
-                null,
-                createdOrder,
-                product,
-                cartItem.quantity,
-                cartItem.price,
-                cartItem.price * cartItem.quantity
-              );
-
-              return this.orderItemService.create(orderItem);
-            })
-          )
-        );
-
-        // 3️⃣ Wait for all items
-        forkJoin(orderItems$).subscribe({
-
-          next: () => {
-            console.log('✅ All order items created');
-            this.initiatePayment(createdOrder.id!);
-          },
-
-          error: (err) => {
-            console.error('❌ OrderItems error:', err);
-            alert('Error creating order items');
-            this.isCheckingOut = false;
-          }
-
-        });
-
-      },
-
-      error: (err) => {
-        console.error('❌ Order error:', err);
-        alert('Error creating order');
-        this.isCheckingOut = false;
-      }
-
-    });
-  }
-
-  // ================= PAYMENT =================
-
-  /**
-   * Call backend → redirect to Flouci
-   */
-  private initiatePayment(orderId: number): void {
-
-    console.log('💳 Initiating payment for order:', orderId);
-
-    this.paymentService.initiatePayment(orderId).subscribe({
+    this.paymentService.initiatePaymentOnly(request).subscribe({
 
       next: (response) => {
 
         if (response.success && response.paymentLink) {
 
-          console.log('✅ Payment started');
+          console.log('✅ Payment link generated:', response.paymentId);
 
-          // Save for success page
-          sessionStorage.setItem('pendingOrderId', orderId.toString());
-          sessionStorage.setItem('pendingPaymentId', response.paymentId);
+          // Store payment data in sessionStorage for success page
+          const paymentData = {
+            paymentId: response.paymentId,
+            userId: user.id_user,
+            totalAmount: this.getTotalPrice(),
+            cartItems: cartItemsDTO
+          };
 
-          // Clear cart (order is saved)
-          //this.cartService.clearCart();
-          this.cart = [];
+          sessionStorage.setItem('pendingPaymentData', JSON.stringify(paymentData));
 
-          // Redirect to Flouci
+          // IMPORTANT: Do NOT clear cart here - cart stays until payment succeeds
+          console.log('🛒 Cart preserved - will clear only on success');
+
+          // Redirect to Flouci payment page
           window.location.href = response.paymentLink;
 
         } else {
@@ -216,12 +306,8 @@ export class CartComponent implements OnInit {
       },
 
       error: (err) => {
-        console.error('❌ Payment error:', err);
-
-        alert(
-          'Payment error. Please try again later.\nOrder ID: ' + orderId
-        );
-
+        console.error('❌ Payment initiation error:', err);
+        alert('Payment error. Please try again later.');
         this.isCheckingOut = false;
       }
 
@@ -246,6 +332,12 @@ export class CartComponent implements OnInit {
 
   closeConfirmationModal(): void {
     this.showConfirmationModal = false;
+  }
+
+  closePersonalInfoForm(): void {
+    this.showPersonalInfoForm = false;
+    this.updateErrorMessage = '';
+    this.updateSuccessMessage = '';
   }
 
 }

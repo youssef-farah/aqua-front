@@ -13,7 +13,7 @@ export interface CartItem {
   providedIn: 'root'
 })
 export class CartService {
- private cart: CartItem[] = [];
+  private cart: CartItem[] = [];
   private cartSource = new BehaviorSubject<CartItem[]>(this.cart);
   cart$ = this.cartSource.asObservable();
 
@@ -31,7 +31,7 @@ export class CartService {
       });
     }
 
-    this.cartSource.next([...this.cart]); // refresh
+    this.cartSource.next([...this.cart]);
   }
 
   getCart() {
@@ -43,6 +43,11 @@ export class CartService {
     this.cartSource.next([...this.cart]);
   }
 
-
- 
+  /**
+   * NEW: Clear entire cart (use after successful payment)
+   */
+  clearCart() {
+    this.cart = [];
+    this.cartSource.next([...this.cart]);
+  }
 }

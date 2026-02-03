@@ -1,6 +1,5 @@
 <app-navbar></app-navbar>
-<div style="    background: linear-gradient(135deg, #e3f2fd 0%, #f1f8ff 100%);
-">
+<div style="background: linear-gradient(135deg, #e3f2fd 0%, #f1f8ff 100%);">
 <div class="cart-container">
   <h2>🛒 Votre panier</h2>
 
@@ -80,6 +79,186 @@
   </div>
 </div>
 
+<!-- Personal Info Form Modal -->
+<div class="modal-overlay" *ngIf="showPersonalInfoForm" (click)="closePersonalInfoForm()">
+  <div class="modal-content personal-info-modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon">📝</div>
+    <h3>Complete Your Personal Information</h3>
+    <p class="modal-subtitle">Please fill in all required fields before proceeding to payment</p>
+    
+    <!-- Success/Error Messages -->
+    <div class="alert alert-success" *ngIf="updateSuccessMessage">
+      ✓ {{ updateSuccessMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="updateErrorMessage">
+      ⚠ {{ updateErrorMessage }}
+    </div>
+
+    <form [formGroup]="personalInfoForm" class="personal-info-form">
+      
+      <!-- Personal Details Section -->
+      <div class="form-section">
+        <h4>👤 Personal Details</h4>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nom">Nom <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="nom" 
+              formControlName="nom"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('nom')?.invalid && personalInfoForm.get('nom')?.touched"
+              placeholder="Enter your last name">
+            <div class="error-message" *ngIf="personalInfoForm.get('nom')?.invalid && personalInfoForm.get('nom')?.touched">
+              Last name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prenom">Prénom <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="prenom" 
+              formControlName="prenom"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('prenom')?.invalid && personalInfoForm.get('prenom')?.touched"
+              placeholder="Enter your first name">
+            <div class="error-message" *ngIf="personalInfoForm.get('prenom')?.invalid && personalInfoForm.get('prenom')?.touched">
+              First name is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mail">Email <span class="required">*</span></label>
+            <input 
+              type="email" 
+              id="mail" 
+              formControlName="mail"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('mail')?.invalid && personalInfoForm.get('mail')?.touched"
+              placeholder="your.email@example.com">
+            <div class="error-message" *ngIf="personalInfoForm.get('mail')?.invalid && personalInfoForm.get('mail')?.touched">
+              Valid email is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="telephone">Téléphone <span class="required">*</span></label>
+            <input 
+              type="tel" 
+              id="telephone" 
+              formControlName="telephone"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('telephone')?.invalid && personalInfoForm.get('telephone')?.touched"
+              placeholder="+216 XX XXX XXX">
+            <div class="error-message" *ngIf="personalInfoForm.get('telephone')?.invalid && personalInfoForm.get('telephone')?.touched">
+              Phone number is required
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address Section -->
+      <div class="form-section" formGroupName="adresse">
+        <h4>🏠 Address Information</h4>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="country">Pays <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="country" 
+              formControlName="country"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('adresse.country')?.invalid && personalInfoForm.get('adresse.country')?.touched"
+              placeholder="Tunisia">
+            <div class="error-message" *ngIf="personalInfoForm.get('adresse.country')?.invalid && personalInfoForm.get('adresse.country')?.touched">
+              Country is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="city">Gouvernorat <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="city" 
+              formControlName="city"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('adresse.city')?.invalid && personalInfoForm.get('adresse.city')?.touched"
+              placeholder="Tunis">
+            <div class="error-message" *ngIf="personalInfoForm.get('adresse.city')?.invalid && personalInfoForm.get('adresse.city')?.touched">
+              Governorate is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="street">Rue <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="street" 
+              formControlName="street"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('adresse.street')?.invalid && personalInfoForm.get('adresse.street')?.touched"
+              placeholder="Street name">
+            <div class="error-message" *ngIf="personalInfoForm.get('adresse.street')?.invalid && personalInfoForm.get('adresse.street')?.touched">
+              Street is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="houseNumber">N° <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="houseNumber" 
+              formControlName="houseNumber"
+              class="form-control"
+              [class.invalid]="personalInfoForm.get('adresse.houseNumber')?.invalid && personalInfoForm.get('adresse.houseNumber')?.touched"
+              placeholder="House number">
+            <div class="error-message" *ngIf="personalInfoForm.get('adresse.houseNumber')?.invalid && personalInfoForm.get('adresse.houseNumber')?.touched">
+              House number is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="postalCode">Code Postal</label>
+            <input 
+              type="text" 
+              id="postalCode" 
+              formControlName="postalCode"
+              class="form-control"
+              placeholder="Optional">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="modal-buttons">
+        <button 
+          type="button"
+          class="btn-save-info" 
+          (click)="onUpdatePersonalInfo()" 
+          [disabled]="personalInfoForm.invalid || isUpdatingInfo">
+          {{ isUpdatingInfo ? 'Saving...' : '💾 Save & Continue' }}
+        </button>
+        <button 
+          type="button"
+          class="btn-cancel" 
+          (click)="closePersonalInfoForm()"
+          [disabled]="isUpdatingInfo">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Order Confirmation Modal -->
 <div class="modal-overlay confirmation-modal" *ngIf="showConfirmationModal" (click)="closeConfirmationModal()">
   <div class="modal-content confirmation-content" (click)="$event.stopPropagation()">
@@ -103,43 +282,19 @@
       </div>
       <div class="detail-row">
         <span class="detail-label">Pays:</span>
-        
-        <span class="detail-value">{{ currentUser?.adresse.country || 'No address provided' }}</span>
-                
-
+        <span class="detail-value">{{ currentUser?.adresse?.country || 'No address provided' }}</span>
       </div>
-
-
-        <div class="detail-row">
-      
-                <span class="detail-label">Gouvernement:</span>
-
-        <span class="detail-value">{{ currentUser?.adresse.city || 'No address provided' }}</span>
-
-
-
+      <div class="detail-row">
+        <span class="detail-label">Gouvernement:</span>
+        <span class="detail-value">{{ currentUser?.adresse?.city || 'No address provided' }}</span>
       </div>
-
-
-        <div class="detail-row">
-     
-                <span class="detail-label">Rue:</span>
-
-        <span class="detail-value">{{ currentUser?.adresse.street || 'No address provided' }}</span>
-                
-
+      <div class="detail-row">
+        <span class="detail-label">Rue:</span>
+        <span class="detail-value">{{ currentUser?.adresse?.street || 'No address provided' }}</span>
       </div>
-
-
-
-        <div class="detail-row">
-
-                <span class="detail-label">N:</span>
-
-        <span class="detail-value">{{ currentUser?.adresse.housenumber || 'No address provided' }}</span>
-
-
-
+      <div class="detail-row">
+        <span class="detail-label">N:</span>
+        <span class="detail-value">{{ currentUser?.adresse?.housenumber || currentUser?.adresse?.houseNumber || 'No address provided' }}</span>
       </div>
       
       <button class="btn-update-profile" (click)="goToProfile()">
@@ -169,7 +324,7 @@
     <!-- Action Buttons -->
     <div class="modal-buttons">
       <button class="btn-confirm-order" (click)="confirmOrder()" [disabled]="isCheckingOut">
-        {{ isCheckingOut ? 'Processing...' : '✓ Confirm Order' }}payer 
+        {{ isCheckingOut ? 'Processing...' : '✓ Confirm Order & Pay' }}
       </button>
       <button class="btn-cancel" (click)="closeConfirmationModal()">
         Cancel

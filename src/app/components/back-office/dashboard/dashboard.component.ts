@@ -79,7 +79,7 @@ chart!: Chart;
 
       // ONLY DELIVERED ORDERS
       const deliveredOrders = orders.filter(
-        o => o.state === OrderState.DELIVERED
+        o => o.state === OrderState.CONFIRMED
       );
 
       this.totalOrders = deliveredOrders.length;
