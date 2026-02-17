@@ -169,8 +169,7 @@
         <select 
           id="category"
           [(ngModel)]="productFormData.category"
-          name="category"
-        >
+          name="category">
           <option [value]="null">Sélectionner une catégorie</option>
           <option *ngFor="let cat of categories" [ngValue]="cat">
             {{ cat.nom }}
@@ -180,10 +179,101 @@
 
       <div class="form-group">
         <label for="image">URL de l'image</label>
-    <input type="file" (change)="onFileSelected($event)" />
-    <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview" width="100" />
+        <input type="file" (change)="onFileSelected($event)" />
+        <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview" width="100" />
+      </div>
 
+      <!-- Options Section -->
+      <div class="form-group">
+        <label>Options du produit</label>
         
+        <!-- Add new option -->
+        <div class="option-input-container">
+          <div class="option-input-row">
+            <input 
+              type="text" 
+              [(ngModel)]="newOptionName"
+              name="newOptionName"
+              placeholder="Nom de l'option"
+              class="option-name-input"
+              (keyup.enter)="addOption(); $event.preventDefault()"
+            />
+            <input 
+              type="number" 
+              [(ngModel)]="newOptionPrice"
+              name="newOptionPrice"
+              placeholder="Prix (TND)"
+              class="option-price-input"
+              step="0.01"
+              (keyup.enter)="addOption(); $event.preventDefault()"
+            />
+            <button 
+              type="button" 
+              class="btn-add-option" 
+              (click)="addOption()"
+              title="Ajouter l'option"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Display added options -->
+        <div *ngIf="productFormData.options && productFormData.options.length > 0" 
+             class="options-list">
+          <div class="options-list-header">
+            <span>Options ajoutées ({{ productFormData.options.length }})</span>
+          </div>
+          
+          <div *ngFor="let option of productFormData.options; let i = index" 
+               class="option-item">
+            <div class="option-details">
+              <div class="option-name">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 11l3 3L22 4"></path>
+                  <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                </svg>
+                <span>{{ option.optionName }}</span>
+              </div>
+              <div class="option-price-display">
+                <input 
+                  type="number" 
+                  [(ngModel)]="option.optionPrice"
+                  [name]="'optionPrice_' + i"
+                  placeholder="Prix"
+                  class="option-price-edit"
+                  step="0.01"
+                  (change)="updateOptionPrice(i, option.optionPrice)"
+                />
+                <span class="currency">TND</span>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              class="btn-remove-option" 
+              (click)="removeOption(i)"
+              title="Supprimer l'option"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <div *ngIf="!productFormData.options || productFormData.options.length === 0" 
+             class="no-options-message">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p>Aucune option ajoutée. Les options permettent de proposer différentes variantes du produit avec des prix différents.</p>
+        </div>
       </div>
 
       <div class="form-actions">

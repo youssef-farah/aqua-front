@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductServiceService } from '../../../services/product-service.service';
 import { CategoryServiceService } from '../../../services/category-service.service';
 import { Product } from '../../../models/product';
+import { ProductOption } from '../../../models/product-option';
 import { Category } from '../../../models/category';
 import { HttpClient } from '@angular/common/http';
 
@@ -27,13 +28,18 @@ export class ProductCrudComponent implements OnInit {
     stock: 0,
     lieuDeProduction: '',
     image: '',
-    category: null
+    category: null,
+    options: []
   };
 
   successMessage: string = '';
   errorMessage: string = '';
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
+  
+  // New option inputs
+  newOptionName: string = '';
+  newOptionPrice: number | null = null;
 
   constructor(
     private productService: ProductServiceService,
@@ -90,7 +96,14 @@ export class ProductCrudComponent implements OnInit {
         stock: product.stock,
         lieuDeProduction: product.lieuDeProduction,
         image: product.image,
-        category: product.category
+        category: product.category,
+options: product.options
+  ? product.options.map(o => ({
+      id: o.id,
+      optionName: o.optionName,
+      optionPrice: o.optionPrice
+    }))
+  : []
       };
       
       // Set image preview if editing
@@ -118,15 +131,18 @@ export class ProductCrudComponent implements OnInit {
       stock: 0,
       lieuDeProduction: '',
       image: '',
-      category: null
+      category: null,
+      options: []
     };
     this.editingProductId = null;
     this.selectedFile = null;
     this.imagePreview = null;
+    this.newOptionName = '';
+    this.newOptionPrice = null;
   }
 
   saveProduct(): void {
-    if (!this.productFormData.titre || !this.productFormData.prix) {
+    if (!this.productFormData.titre) {  
       this.showError('Veuillez remplir les champs obligatoires');
       return;
     }
@@ -204,10 +220,7 @@ export class ProductCrudComponent implements OnInit {
     });
   }
 
-  /**
-   * Prepare product data for backend by converting category object to just the ID
-   * This avoids circular reference issues when serializing to JSON
-   */
+ 
   prepareProductDataForBackend(): any {
     const productData = {
       code: this.productFormData.code,
@@ -217,7 +230,12 @@ export class ProductCrudComponent implements OnInit {
       stock: this.productFormData.stock,
       lieuDeProduction: this.productFormData.lieuDeProduction,
       image: this.productFormData.image,
-      // Send only the category object with id_category, not the full nested object
+options: this.productFormData.options.map((o: any) => ({
+  id: o.id ?? null,
+  optionName: o.optionName,
+  optionPrice: o.optionPrice ?? 0
+})),
+    
       category: this.productFormData.category ? {
         id_category: this.productFormData.category.id_category
       } : null
@@ -273,6 +291,36 @@ export class ProductCrudComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = () => this.imagePreview = reader.result;
       reader.readAsDataURL(this.selectedFile);
+    }
+  }
+
+  // Options management methods with name and price
+  addOption(): void {
+    if (this.newOptionName.trim()) {
+      if (!this.productFormData.options) {
+        this.productFormData.options = [];
+      }
+      
+      // Create ProductOption object with name and price
+      const newOption: ProductOption = new ProductOption(
+  this.newOptionName.trim(),
+  this.newOptionPrice ?? undefined
+);
+
+      
+      this.productFormData.options.push(newOption);
+      this.newOptionName = '';
+      this.newOptionPrice = null;
+    }
+  }
+
+  removeOption(index: number): void {
+    this.productFormData.options.splice(index, 1);
+  }
+
+  updateOptionPrice(index: number, newPrice: number | null): void {
+    if (this.productFormData.options[index]) {
+      this.productFormData.options[index].optionPrice = newPrice || undefined;
     }
   }
 }

@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute,Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { ProductServiceService } from '../../services/product-service.service';
 import { Product } from '../../models/product';
+import { ProductOption } from '../../models/product-option';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -17,6 +18,10 @@ export class ProductDetailsComponent implements OnInit {
   productAdded = false;
   showbtn = false;
   similarProducts: Product[] = [];
+  
+  // New properties for options
+  selectedOption: ProductOption | null = null;
+  displayPrice: number = 0;
   
   constructor(
     private cartService: CartService,
@@ -36,7 +41,7 @@ export class ProductDetailsComponent implements OnInit {
   loadProductDetails(productId: number): void {
     this.prodser.getProductByCode(productId).subscribe({
       next: (data) => {
-        console.log(data);
+        console.log('Product data received:', data);
         this.product = {
           code: productId,
           titre: data.titre || 'Casque Audio Sans Fil',
@@ -45,7 +50,23 @@ export class ProductDetailsComponent implements OnInit {
           description: data.description || 'Profitez d\'une expérience audio exceptionnelle avec ce casque sans fil offrant un son cristallin et un confort optimal.',
           stock: data.stock,
           lieuDeProduction: data.lieuDeProduction,
+          options: data.options || []
         };
+        
+        console.log('Product options:', this.product.options);
+        
+        // Initialize display price with base price
+        this.displayPrice = this.product.prix || 0;
+        
+        // If there are options, select the first one by default
+        if (this.product.options && this.product.options.length > 0) {
+          this.selectedOption = this.product.options[0];
+          this.updateDisplayPrice();
+          console.log('Default selected option:', this.selectedOption);
+        }
+      },
+      error: (err) => {
+        console.error('Error loading product:', err);
       }
     });
   }
@@ -62,10 +83,38 @@ export class ProductDetailsComponent implements OnInit {
     });
   }
 
+  // Handle option selection change
+  onOptionChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedId = Number(selectElement.value);
+    
+    if (this.product?.options) {
+      this.selectedOption = this.product.options.find(opt => opt.id === selectedId) || null;
+      this.updateDisplayPrice();
+      console.log('Selected option:', this.selectedOption);
+    }
+  }
+
+  // Update the display price based on selected option
+  updateDisplayPrice(): void {
+    if (this.selectedOption && this.selectedOption.optionPrice !== undefined) {
+      this.displayPrice = this.selectedOption.optionPrice;
+    } else if (this.product?.prix) {
+      this.displayPrice = this.product.prix;
+    }
+  }
+
   onAddToCart(): void {
     if (this.product) {
-      this.cartService.addToCart(this.product, this.quantity);
-      console.log("Added to cart!");
+      // Create a modified product object with the selected option info
+      const productToAdd = {
+        ...this.product,
+        prix: this.displayPrice,
+        selectedOption: this.selectedOption
+      };
+      
+      this.cartService.addToCart(productToAdd, this.quantity);
+      console.log("Added to cart with option:", this.selectedOption);
       this.quantity = 1;
     }
   }
@@ -103,5 +152,10 @@ export class ProductDetailsComponent implements OnInit {
     this.router.navigate(['/product', productCode]);
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Helper method to check if product has options
+  hasOptions(): boolean {
+    return !!(this.product?.options && this.product.options.length > 0);
   }
 }

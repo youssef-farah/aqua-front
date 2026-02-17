@@ -1,0 +1,431 @@
+<div class="pool-contract-container">
+  
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Votre Piscine de Rêve</h1>
+      <p class="hero-subtitle">Construction & Maintenance Professionnelle</p>
+      <div class="hero-cta">
+        <a href="#construction" class="hero-btn">Construire</a>
+        <a href="#maintenance" class="hero-btn hero-btn-outline">Maintenir</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <!-- Pool image placeholder -->
+      <img src="https://images.unsplash.com/photo-1519974719765-e6559eac2575?w=1200&h=600&fit=crop" alt="Piscine moderne" />
+    </div>
+  </section>
+
+  <!-- Construction Section -->
+  <section id="construction" class="construction-section">
+    <div class="section-wave"></div>
+    
+    <div class="section-header">
+      <h2 class="section-title-main">Construction de Piscine</h2>
+      <p class="section-subtitle">Créez la piscine de vos rêves avec notre expertise</p>
+    </div>
+
+    <!-- Visual Banner -->
+    <div class="visual-banner">
+      <div class="banner-image">
+        <img src="https://images.unsplash.com/photo-1576610616656-d3aa5d1f4534?w=800&h=400&fit=crop" alt="Construction piscine" />
+      </div>
+      <div class="banner-content">
+        <h3>Pourquoi nous choisir ?</h3>
+        <ul>
+          <li>✓ Plus de 10 ans d'expérience</li>
+          <li>✓ Garantie structure 10 ans</li>
+          <li>✓ Équipements de qualité professionnelle</li>
+          <li>✓ 1 an de maintenance offerte</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- User Information Form -->
+    <div class="form-container">
+      <div class="form-section">
+        <h3 class="form-title">Commencez Votre Projet</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">Nom complet *</label>
+            <input 
+              type="text" 
+              id="name" 
+              [(ngModel)]="userInfo.name" 
+              placeholder="Votre nom complet"
+              required>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Téléphone *</label>
+            <input 
+              type="tel" 
+              id="phone" 
+              [(ngModel)]="userInfo.phone" 
+              placeholder="+216 XX XXX XXX"
+              required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              id="email" 
+              [(ngModel)]="userInfo.email" 
+              placeholder="votre@email.com">
+          </div>
+        </div>
+      </div>
+
+      <!-- Pool Details Form -->
+      <div class="form-section" *ngIf="isFormValid()">
+        <h3 class="form-title">Détails de Votre Piscine</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="forme">Forme</label>
+            <select id="forme" [(ngModel)]="poolDetails.forme">
+              <option value="">Sélectionnez...</option>
+              <option value="rectangulaire">Rectangulaire</option>
+              <option value="ovale">Ovale</option>
+              <option value="haricot">Haricot</option>
+              <option value="libre">Forme libre</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="surface">Surface (m²)</label>
+            <input 
+              type="number" 
+              id="surface" 
+              [(ngModel)]="poolDetails.surface" 
+              (change)="calculateVolume()"
+              placeholder="Ex: 50"
+              min="0">
+          </div>
+          
+          <div class="form-group">
+            <label for="profondeur">Profondeur (m)</label>
+            <input 
+              type="text" 
+              id="profondeur" 
+              [(ngModel)]="poolDetails.profondeur" 
+              (change)="calculateVolume()"
+              placeholder="Ex: 1.2 – 1.8">
+          </div>
+          
+          <div class="form-group">
+            <label for="volume">Volume (m³)</label>
+            <input 
+              type="number" 
+              id="volume" 
+              [(ngModel)]="poolDetails.volume" 
+              placeholder="Auto-calculé"
+              min="0">
+            <a href="#" class="calculator-link" (click)="toggleVolumeCalculator(); $event.preventDefault()">
+              📊 Calculer le volume
+            </a>
+          </div>
+        </div>
+
+        <!-- Volume Calculator -->
+        <div class="volume-calculator" *ngIf="showVolumeCalculator">
+          <h4>Calculateur de Volume</h4>
+          <p>Volume = Surface × Profondeur moyenne</p>
+          <button class="btn-calc" (click)="calculateVolume()">Calculer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Equipment Section -->
+    <div class="equipment-showcase" *ngIf="isConstructionFormComplete()">
+      <h3 class="showcase-title">Équipements Inclus Dans Votre Piscine</h3>
+      
+      <div class="equipment-grid">
+        <div class="equipment-item">
+          <div class="equipment-image">
+            <img src="https://images.unsplash.com/photo-1590642912275-c0e7a4d92558?w=400&h=300&fit=crop" alt="Filtration" />
+          </div>
+          <div class="equipment-content">
+            <h4>Ensemble de Filtration</h4>
+            <ul>
+              <li>Filtre à sable haute performance</li>
+              <li>Pompe avec préfiltre</li>
+              <li>Vanne multivoies 6 positions</li>
+              <li>Charge complète de sable</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="equipment-item">
+          <div class="equipment-image">
+            <img src="https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=400&h=300&fit=crop" alt="Équipement bassin" />
+          </div>
+          <div class="equipment-content">
+            <h4>Équipement de Bassin</h4>
+            <ul>
+              <li>Skimmers premium</li>
+              <li>Bouches de refoulement</li>
+              <li>Bonde de fond</li>
+              <li>Traversées de paroi</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="equipment-item">
+          <div class="equipment-image">
+            <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop" alt="Éclairage LED" />
+          </div>
+          <div class="equipment-content">
+            <h4>Éclairage LED</h4>
+            <ul>
+              <li>Projecteurs LED multicolores</li>
+              <li>Transformateur de sécurité</li>
+              <li>Boîtes de connexion étanches</li>
+              <li>Câblage complet</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="equipment-item">
+          <div class="equipment-image">
+            <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&h=300&fit=crop" alt="Accessoires" />
+          </div>
+          <div class="equipment-content">
+            <h4>Accessoires d'Entretien</h4>
+            <ul>
+              <li>Kit complet de nettoyage</li>
+              <li>Épuisette et balai</li>
+              <li>Trousse d'analyses chimiques</li>
+              <li>Thermomètre flottant</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="equipment-item">
+          <div class="equipment-image">
+            <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop" alt="Armoire électrique" />
+          </div>
+          <div class="equipment-content">
+            <h4>Armoire Électrique</h4>
+            <ul>
+              <li>Coffret étanche IP65</li>
+              <li>Disjoncteurs de protection</li>
+              <li>Programmateur horaire 24h</li>
+              <li>Installation aux normes</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="equipment-item bonus">
+          <div class="equipment-image">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" alt="Bonus maintenance" />
+          </div>
+          <div class="equipment-content">
+            <h4>🎁 Bonus Exclusif</h4>
+            <ul>
+              <li><strong>1 an de maintenance GRATUITE</strong></li>
+              <li>Garantie structure: 10 ans</li>
+              <li>Garantie filtration: 1 an</li>
+              <li>Service après-vente premium</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price Box -->
+      <div class="price-box">
+        <div class="price-box-content">
+          <h3>Votre Devis Estimatif</h3>
+          <div class="price-large">
+            <span class="price-number">{{ estimateConstructionPrice().toFixed(3) }}</span>
+            <span class="price-unit">TND</span>
+          </div>
+          <p class="price-info">Prix tout compris: génie civil + équipements + installation</p>
+          <button class="btn-quote" (click)="submitConstructionRequest()">
+            Demander un Devis Précis
+          </button>
+        </div>
+      </div>
+
+      <!-- Payment Terms -->
+      <div class="payment-section">
+        <h3>Modalités de Paiement Flexibles</h3>
+        <div class="payment-timeline">
+          <div class="payment-item">
+            <div class="payment-percent">40%</div>
+            <div class="payment-label">À la commande</div>
+          </div>
+          <div class="payment-arrow">→</div>
+          <div class="payment-item">
+            <div class="payment-percent">30%</div>
+            <div class="payment-label">Coulage béton</div>
+          </div>
+          <div class="payment-arrow">→</div>
+          <div class="payment-item">
+            <div class="payment-percent">15%</div>
+            <div class="payment-label">Pose mosaïque</div>
+          </div>
+          <div class="payment-arrow">→</div>
+          <div class="payment-item">
+            <div class="payment-percent">15%</div>
+            <div class="payment-label">Réception finale</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Maintenance Section -->
+  <section id="maintenance" class="maintenance-section">
+    <div class="section-wave wave-flip"></div>
+    
+    <div class="section-header">
+      <h2 class="section-title-main">Contrats de Maintenance</h2>
+      <p class="section-subtitle">Profitez d'une piscine toujours propre et prête à plonger</p>
+    </div>
+
+    <!-- Maintenance Banner -->
+    <div class="maintenance-banner">
+      <div class="banner-image-full">
+        <img src="https://images.unsplash.com/photo-1601826299274-5c91a4d27d48?w=1200&h=400&fit=crop" alt="Maintenance piscine" />
+      </div>
+      <div class="banner-overlay-text">
+        <h3>Service Professionnel Complet</h3>
+        <p>Nos techniciens qualifiés prennent soin de votre piscine toute l'année</p>
+      </div>
+    </div>
+
+    <!-- User Form for Maintenance -->
+    <div class="form-container">
+      <div class="form-section">
+        <h3 class="form-title">Demandez Votre Contrat</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name-maintenance">Nom complet *</label>
+            <input 
+              type="text" 
+              id="name-maintenance" 
+              [(ngModel)]="userInfo.name" 
+              placeholder="Votre nom complet"
+              required>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone-maintenance">Téléphone *</label>
+            <input 
+              type="tel" 
+              id="phone-maintenance" 
+              [(ngModel)]="userInfo.phone" 
+              placeholder="+216 XX XXX XXX"
+              required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email-maintenance">Email</label>
+            <input 
+              type="email" 
+              id="email-maintenance" 
+              [(ngModel)]="userInfo.email" 
+              placeholder="votre@email.com">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing Plans -->
+    <div class="pricing-container" *ngIf="isFormValid()">
+      <h3 class="pricing-title">Choisissez Votre Formule</h3>
+      
+      <div class="pricing-cards">
+        <div 
+          class="pricing-card" 
+          *ngFor="let plan of maintenancePlans"
+          [class.featured]="plan.recommended">
+          
+          <div class="pricing-badge" *ngIf="plan.special">{{ plan.special }}</div>
+          
+          <div class="pricing-header">
+            <h4>{{ plan.name }}</h4>
+            <div class="pricing-duration">{{ plan.duration }}</div>
+          </div>
+
+          <div class="pricing-price">
+            <div class="price-monthly">
+              <span class="price-value">{{ getMonthlyMaintenancePrice(plan) }}</span>
+              <span class="price-label">TND/mois*</span>
+            </div>
+            <div class="price-total-line" *ngIf="plan.discount">
+              <span class="price-original">{{ (plan.annualPrice * (plan.duration)).toFixed(3) }} TND</span>
+              <span class="price-discount">-{{ plan.discount }}%</span>
+            </div>
+            <div class="price-final">Total: {{ getTotalPrice(plan) }} TND</div>
+          </div>
+
+          <div class="pricing-features">
+            <div class="pricing-feature" *ngFor="let feature of plan.features">
+              <span class="check-icon">✓</span>
+              {{ feature }}
+            </div>
+          </div>
+
+          <div class="pricing-interventions">
+            <strong>{{ plan.totalInterventions }}</strong> interventions
+            <div class="intervention-details">
+              <span>{{ plan.interventionsPerMonth.high }}x/mois (Mai-Sept)</span>
+              <span>{{ plan.interventionsPerMonth.low }}x/mois (Oct-Avr)</span>
+            </div>
+          </div>
+
+          <button 
+            class="btn-pricing" 
+            [class.btn-featured]="plan.recommended"
+            (click)="selectMaintenancePlan(plan)">
+            {{ plan.recommended ? 'Meilleure Offre →' : 'Choisir' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Services Detail -->
+    <div class="services-detail">
+      <h3>Ce Qui Est Inclus Dans Nos Interventions</h3>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">🧪</div>
+          <h4>Analyse Chimique</h4>
+          <p>Mesure et équilibrage du pH, contrôle du chlore, ajout d'algicide tous les 10 jours</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🧽</div>
+          <h4>Nettoyage Complet</h4>
+          <p>Nettoyage du fond et des parois, aspiration des débris, brossage minutieux</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">⚙️</div>
+          <div class="service-card">
+          <div class="service-icon">⚙️</div>
+          <h4>Maintenance Technique</h4>
+          <p>Lavage et contrôle des filtres, vérification des équipements, réglages nécessaires</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">📋</div>
+          <h4>Suivi Personnalisé</h4>
+          <p>Rapport après chaque intervention, conseils d'expert, assistance téléphonique</p>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Footer CTA -->
+  <section class="footer-cta">
+    <h2>Prêt à Profiter de Votre Piscine ?</h2>
+    <p>Contactez-nous dès aujourd'hui pour un devis gratuit et personnalisé</p>
+    <div class="cta-buttons">
+      <a href="#construction" class="btn-cta">Construire Ma Piscine</a>
+      <a href="#maintenance" class="btn-cta-outline">Contrat de Maintenance</a>
+    </div>
+  </section>
+
+</div>

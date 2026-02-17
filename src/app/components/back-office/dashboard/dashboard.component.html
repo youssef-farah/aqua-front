@@ -102,44 +102,6 @@
 </div>
 
 
-  <div class="chart-options">
-
-  <h3>Options</h3>
-
-  <!-- PERIOD TOGGLE -->
-  <div class="option-group">
-    <label>Période</label>
-    <div class="toggle-buttons">
-      <button
-        [class.active]="chartPeriod === 'monthly'"
-        (click)="changePeriod('monthly')">
-        Mensuel
-      </button>
-
-      <button
-        [class.active]="chartPeriod === 'yearly'"
-        (click)="changePeriod('yearly')">
-        Annuel
-      </button>
-    </div>
-  </div>
-
-  <!-- COLOR PICKER -->
-  <div class="option-group">
-    <label>Couleur du graphique</label>
-    <input
-      type="color"
-      [value]="chartColor"
-      (change)="changeColor($event)">
-  </div>
-
-  <!-- EXPORT -->
-  <div class="option-group">
-    <label>Exporter</label>
-    <button class="export-btn" (click)="exportAsPNG()">PNG</button>
-    <button class="export-btn" (click)="exportAsPDF()">PDF</button>
-  </div>
-
-</div>
+  
 
 </div>

@@ -1,4 +1,5 @@
 import { Category } from "./category";
+import { ProductOption } from "./product-option";
 import { User } from "./user";
 
 export class Product {
@@ -9,11 +10,12 @@ export class Product {
         public description: string,
         public lieuDeProduction: string,
         public stock: number,
-        public prix: number,
         public image: string,
-        public complementaryInfos?: Map<string, string>,
-        public options?: string[],
+        public complementaryInfos?: { [key: string]: string },
+        public options?: ProductOption[],
         public category?: Category,
-        public user?: User
+        public user?: User,
+        public prix?: number,
+
     ) {}
 }

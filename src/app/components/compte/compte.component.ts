@@ -69,8 +69,8 @@ export class CompteComponent implements OnInit, AfterViewInit {
       password: ['', [Validators.required, Validators.minLength(6)]],
       telephone: ['', [Validators.pattern(/^[0-9+\s-()]*$/)]],
       adresse: this.fb.group({
-        country: [''],
-        city: [''],
+        country: ['', Validators.required],
+        city: ['', Validators.required],
         street: [''],
         postalCode: [''],
         houseNumber: ['']
@@ -551,14 +551,14 @@ export class CompteComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getErrorMessage(controlName: string): string {
-    const control = this.accountForm.get(controlName);
+  getErrorMessage(controlName: string, formGroup: FormGroup = this.accountForm): string {
+    const control = formGroup.get(controlName);
     
     if (control?.hasError('required')) {
       return 'Ce champ est requis';
     }
     if (control?.hasError('email')) {
-      return 'Email invalide';
+      return 'Veuillez entrer une adresse email valide';
     }
     if (control?.hasError('minlength')) {
       const minLength = control.errors?.['minlength'].requiredLength;
@@ -571,8 +571,26 @@ export class CompteComponent implements OnInit, AfterViewInit {
     return '';
   }
 
-  shouldShowError(controlName: string): boolean {
-    const control = this.accountForm.get(controlName);
+  shouldShowError(controlName: string, formGroup: FormGroup = this.accountForm): boolean {
+    const control = formGroup.get(controlName);
     return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  // Validation helpers for login form
+  getLoginErrorMessage(controlName: string): string {
+    return this.getErrorMessage(controlName, this.loginForm);
+  }
+
+  shouldShowLoginError(controlName: string): boolean {
+    return this.shouldShowError(controlName, this.loginForm);
+  }
+
+  // Validation helpers for register form
+  getRegisterErrorMessage(controlName: string): string {
+    return this.getErrorMessage(controlName, this.registerForm);
+  }
+
+  shouldShowRegisterError(controlName: string): boolean {
+    return this.shouldShowError(controlName, this.registerForm);
   }
 }

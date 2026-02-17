@@ -14,33 +14,215 @@
     </button>
   </div>
 
-  <!-- Categories Grid -->
-  <div class="categories-grid">
-    <div *ngFor="let category of categories" class="category-card">
-      <div class="category-header">
-        <h3>{{ category.nom }}</h3>
-        <span class="category-badge">ID: {{ category.id_category }}</span>
-      </div>
-      <p class="category-desc">{{ category.description || 'Pas de description' }}</p>
-      <div class="category-actions">
-        <button 
-          class="btn btn-sm btn-edit"
-          (click)="openCategoryForm(category)"
-        >
-          ✏️ Modifier
-        </button>
-        <button 
-          class="btn btn-sm btn-delete"
-          (click)="deleteCategory(category.id_category)"
-        >
-          🗑️ Supprimer
-        </button>
-      </div>
+  <!-- Search Bar -->
+  <div class="search-container">
+    <div class="search-wrapper">
+      <input 
+        type="text" 
+        class="search-input"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Rechercher par nom..."
+      />
+      <button 
+        *ngIf="searchTerm" 
+        class="clear-search-btn"
+        (click)="clearSearch()"
+        title="Effacer la recherche"
+      >
+        ✕
+      </button>
     </div>
   </div>
+
+  <!-- Hierarchical Categories Tree -->
+  <div class="categories-tree">
+    <ng-container *ngFor="let category of parentCategories">
+      <div class="category-item">
+        <!-- Parent Category Card -->
+        <div class="category-card">
+          <div class="category-content-wrapper">
+            <!-- Expand Arrow (if has children) -->
+            <button 
+              *ngIf="hasChildren(category.id_category)"
+              class="expand-btn"
+              (click)="toggleExpand(category.id_category)"
+              [class.expanded]="isExpanded(category.id_category)"
+            >
+              ▶
+            </button>
+            <div *ngIf="!hasChildren(category.id_category)" class="expand-placeholder"></div>
+
+            <!-- Category Image -->
+            <div class="category-image-wrapper">
+              <img 
+                *ngIf="category.image" 
+                [src]="'http://localhost:8085/' + category.image" 
+                [alt]="category.nom"
+                class="category-image"
+              />
+              <div *ngIf="!category.image" class="category-image-placeholder">
+                📁
+              </div>
+            </div>
+
+            <!-- Category Info -->
+            <div class="category-info">
+              <h3 class="category-name">{{ category.nom }}</h3>
+              <p class="category-desc">{{ category.description || 'Pas de description' }}</p>
+            </div>
+
+            <!-- Category Actions -->
+            <div class="category-actions">
+              <button 
+                class="btn btn-sm btn-edit"
+                (click)="openCategoryForm(category)"
+                title="Modifier"
+              >
+                ✏️
+              </button>
+              <button 
+                class="btn btn-sm btn-delete"
+                (click)="deleteCategory(category.id_category)"
+                title="Supprimer"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Child Categories (Nested) -->
+        <div 
+          *ngIf="isExpanded(category.id_category) && hasChildren(category.id_category)"
+          class="children-container"
+        >
+          <ng-container *ngFor="let childCategory of getChildCategories(category.id_category)">
+            <div class="category-item child-item">
+              <div class="category-card child-card">
+                <div class="category-content-wrapper">
+                  <!-- Expand Arrow for nested children -->
+                  <button 
+                    *ngIf="hasChildren(childCategory.id_category)"
+                    class="expand-btn"
+                    (click)="toggleExpand(childCategory.id_category)"
+                    [class.expanded]="isExpanded(childCategory.id_category)"
+                  >
+                    ▶
+                  </button>
+                  <div *ngIf="!hasChildren(childCategory.id_category)" class="expand-placeholder"></div>
+
+                  <!-- Category Image -->
+                  <div class="category-image-wrapper">
+                    <img 
+                      *ngIf="childCategory.image" 
+                      [src]="'http://localhost:8085/' + childCategory.image" 
+                      [alt]="childCategory.nom"
+                      class="category-image"
+                    />
+                    <div *ngIf="!childCategory.image" class="category-image-placeholder">
+                      📄
+                    </div>
+                  </div>
+
+                  <!-- Category Info -->
+                  <div class="category-info">
+                    <h3 class="category-name">{{ childCategory.nom }}</h3>
+                    <p class="category-desc">{{ childCategory.description || 'Pas de description' }}</p>
+                  </div>
+
+                  <!-- Category Actions -->
+                  <div class="category-actions">
+                    <button 
+                      class="btn btn-sm btn-edit"
+                      (click)="openCategoryForm(childCategory)"
+                      title="Modifier"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      class="btn btn-sm btn-delete"
+                      (click)="deleteCategory(childCategory.id_category)"
+                      title="Supprimer"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nested Grandchildren -->
+              <div 
+                *ngIf="isExpanded(childCategory.id_category) && hasChildren(childCategory.id_category)"
+                class="children-container"
+              >
+                <ng-container *ngFor="let grandchildCategory of getChildCategories(childCategory.id_category)">
+                  <div class="category-item grandchild-item">
+                    <div class="category-card grandchild-card">
+                      <div class="category-content-wrapper">
+                        <!-- Expand Arrow for deeper nesting -->
+                        <button 
+                          *ngIf="hasChildren(grandchildCategory.id_category)"
+                          class="expand-btn"
+                          (click)="toggleExpand(grandchildCategory.id_category)"
+                          [class.expanded]="isExpanded(grandchildCategory.id_category)"
+                        >
+                          ▶
+                        </button>
+                        <div *ngIf="!hasChildren(grandchildCategory.id_category)" class="expand-placeholder"></div>
+
+                        <!-- Category Image -->
+                        <div class="category-image-wrapper">
+                          <img 
+                            *ngIf="grandchildCategory.image" 
+                            [src]="'http://localhost:8085/' + grandchildCategory.image" 
+                            [alt]="grandchildCategory.nom"
+                            class="category-image"
+                          />
+                          <div *ngIf="!grandchildCategory.image" class="category-image-placeholder">
+                            📄
+                          </div>
+                        </div>
+
+                        <!-- Category Info -->
+                        <div class="category-info">
+                          <h3 class="category-name">{{ grandchildCategory.nom }}</h3>
+                          <p class="category-desc">{{ grandchildCategory.description || 'Pas de description' }}</p>
+                        </div>
+
+                        <!-- Category Actions -->
+                        <div class="category-actions">
+                          <button 
+                            class="btn btn-sm btn-edit"
+                            (click)="openCategoryForm(grandchildCategory)"
+                            title="Modifier"
+                          >
+                            ✏️
+                          </button>
+                          <button 
+                            class="btn btn-sm btn-delete"
+                            (click)="deleteCategory(grandchildCategory.id_category)"
+                            title="Supprimer"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Continue nesting as needed (you can make this recursive with ng-template) -->
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </div>
   
-  <div *ngIf="categories.length === 0" class="empty-state">
-    <p>Aucune catégorie trouvée</p>
+  <div *ngIf="parentCategories.length === 0" class="empty-state">
+    <p>{{ searchTerm ? 'Aucune catégorie trouvée pour "' + searchTerm + '"' : 'Aucune catégorie trouvée' }}</p>
   </div>
 </div>
 
@@ -82,6 +264,7 @@
           id="parentCategory"
           [(ngModel)]="selectedParentCategoryId"
           name="parentCategory"
+          class="form-select"
         >
           <option [ngValue]="null">Aucune (Catégorie principale)</option>
           <option 
@@ -92,6 +275,16 @@
             {{ cat.nom }}
           </option>
         </select>
+        <small *ngIf="editingCategoryId && selectedParentCategoryId && getParentCategoryName()" 
+               style="color: #6c757d; margin-top: 4px; display: block;">
+          Parent actuel: {{ getParentCategoryName() }}
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="image">Image</label>
+        <input type="file" (change)="onFileSelected($event)" accept="image/*" />
+        <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview" class="image-preview" />
       </div>
 
       <div class="form-actions">

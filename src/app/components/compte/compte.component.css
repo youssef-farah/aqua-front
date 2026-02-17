@@ -157,8 +157,8 @@
 }
 
 .tab-button.active {
-  color: #111827;
-  border-bottom-color: #111827;
+  color: #0a3fb3;
+  border-bottom-color: #0a3fb3;
 }
 
 .tab-button:hover {
@@ -178,7 +178,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid #e5e7eb;
-  border-top-color: #111827;
+  border-top-color: #0a3fb3;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-bottom: 1rem;
@@ -441,8 +441,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #111827;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  border-color: #0a3fb3;
+  box-shadow: 0 0 0 3px rgba(10, 63, 179, 0.1);
 }
 
 .form-group input.error {
@@ -452,6 +452,7 @@
 .error-message {
   font-size: 0.8125rem;
   color: #dc2626;
+  margin-top: -0.25rem;
 }
 
 .form-actions {
@@ -523,9 +524,9 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #000000;
+  background: #2c54a8;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(62, 107, 204, 0.3);
 }
 
 .btn-primary:disabled {
@@ -540,7 +541,7 @@
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   background: transparent;
-  color: #111827;
+  color: #0a3fb3;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 0.9375rem;
@@ -550,8 +551,8 @@
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #111827;
+  background: #f3f4f6;
+  border-color: #0a3fb3;
 }
 
 .btn-secondary:disabled {
@@ -560,7 +561,7 @@
 }
 
 /* ========================================
-   LOGIN/REGISTER VIEW (Keep existing styles)
+   LOGIN/REGISTER VIEW
    ======================================== */
 
 .auth-section {
@@ -596,12 +597,12 @@
 }
 
 .tabs button.active {
-  color: #111827;
-  border-bottom-color: #111827;
+  color: #0a3fb3;
+  border-bottom-color: #0a3fb3;
 }
 
 .tabs button:hover {
-  color: #111827;
+  color: #0a3fb3;
 }
 
 .tab-content {
@@ -617,7 +618,7 @@
 .tab-content form button[type="submit"] {
   margin-top: 0.5rem;
   padding: 0.875rem;
-  background: #111827;
+  background: #3e6bcc;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -628,7 +629,8 @@
 }
 
 .tab-content form button[type="submit"]:hover:not(:disabled) {
-  background: #000000;
+  background: #2c54a8;
+  box-shadow: 0 4px 12px rgba(62, 107, 204, 0.3);
 }
 
 .tab-content form button[type="submit"]:disabled {
@@ -645,7 +647,7 @@
 }
 
 .forgot-password-link:hover {
-  color: #111827;
+  color: #0a3fb3;
   text-decoration: underline;
 }
 
@@ -675,7 +677,7 @@
 .btn-retour {
   padding: 0.875rem 1.5rem;
   background: transparent;
-  color: #111827;
+  color: #0a3fb3;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 0.9375rem;
@@ -685,8 +687,8 @@
 }
 
 .btn-retour:hover {
-  background: #f9fafb;
-  border-color: #111827;
+  background: #f3f4f6;
+  border-color: #0a3fb3;
 }
 
 .divider {

@@ -333,3 +333,243 @@ body {
 .btn-secondary:hover {
   background: #5a6268;
 }
+
+
+
+/* Options Section Styles */
+
+.option-input-container {
+  margin-bottom: 16px;
+}
+
+.option-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.option-name-input {
+  flex: 2;
+  padding: 10px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.option-name-input:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.option-price-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.option-price-input:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+}
+
+.btn-add-option {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: linear-gradient(135deg, #4285f4 0%, #1967d2 100%);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-add-option:hover {
+  background: linear-gradient(135deg, #5a95f5 0%, #2b75db 100%);
+  transform: scale(1.05);
+}
+
+.btn-add-option:active {
+  transform: scale(0.95);
+}
+
+.options-list {
+  margin-top: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f9fafb;
+}
+
+.options-list-header {
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+  border-bottom: 2px solid #e5e7eb;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1a2b4d;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.options-list-header svg {
+  color: #4285f4;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.option-item:last-child {
+  border-bottom: none;
+}
+
+.option-item:hover {
+  background: #f9fafb;
+}
+
+.option-details {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.option-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 2;
+  font-size: 14px;
+  color: #1a2b4d;
+  font-weight: 500;
+}
+
+.option-name svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.option-price-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.option-price-edit {
+  width: 100%;
+  max-width: 120px;
+  padding: 6px 10px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2b4d;
+  transition: all 0.2s ease;
+}
+
+.option-price-edit:focus {
+  outline: none;
+  border-color: #fb923c;
+  box-shadow: 0 0 0 2px rgba(251, 146, 60, 0.1);
+}
+
+.currency {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.btn-remove-option {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-remove-option:hover {
+  background: #fecaca;
+  transform: scale(1.05);
+}
+
+.btn-remove-option:active {
+  transform: scale(0.95);
+}
+
+.no-options-message {
+  padding: 24px;
+  text-align: center;
+  background: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  margin-top: 12px;
+}
+
+.no-options-message svg {
+  color: #9ca3af;
+  margin: 0 auto 12px;
+}
+
+.no-options-message p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .option-input-row {
+    flex-direction: column;
+  }
+
+  .option-name-input,
+  .option-price-input {
+    width: 100%;
+  }
+
+  .btn-add-option {
+    width: 100%;
+    height: 40px;
+  }
+
+  .option-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .option-price-display {
+    width: 100%;
+  }
+
+  .option-price-edit {
+    max-width: 100%;
+  }
+}

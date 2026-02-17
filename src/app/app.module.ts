@@ -33,6 +33,7 @@ import { DosageComponent } from './components/dosage/dosage.component';
 import { SuccespayComponent } from './components/succespay/succespay.component';
 import { FailpayComponent } from './components/failpay/failpay.component';
 import { RedirectpageComponent } from './components/redirectpage/redirectpage.component';
+import { ContinfosComponent } from './components/continfos/continfos.component';
 
 
 @NgModule({
@@ -64,7 +65,8 @@ import { RedirectpageComponent } from './components/redirectpage/redirectpage.co
     DosageComponent,
     SuccespayComponent,
     FailpayComponent,
-    RedirectpageComponent
+    RedirectpageComponent,
+    ContinfosComponent
   ],
   imports: [
     BrowserModule,

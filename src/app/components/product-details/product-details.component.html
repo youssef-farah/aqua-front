@@ -24,11 +24,44 @@
 </div>
 
         <div class="product-price-badge">
-        <span class="price-amount">{{ product.prix }} TND</span>
+        <span class="price-amount">{{ displayPrice }} TND</span>
         <span class="price-label">Prix unitaire</span>
       </div>
       </div>
 </div>
+
+      <!-- Product Options -->
+      <div class="options-card" *ngIf="hasOptions()">
+        <div class="options-card-header">
+          <svg class="info-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+          <h3>Options disponibles</h3>
+        </div>
+        <div class="options-dropdown-wrapper">
+          <label for="product-options" class="options-label">Choisissez une option:</label>
+          <select 
+            id="product-options"
+            class="options-select"
+            [value]="selectedOption?.id"
+            (change)="onOptionChange($event)">
+            <option 
+              *ngFor="let option of product.options" 
+              [value]="option.id">
+              {{ option.optionName }}<span *ngIf="option.optionPrice"> - {{ option.optionPrice }} TND</span>
+            </option>
+          </select>
+          <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="option-price-display" *ngIf="selectedOption">
+          <span class="option-price-label">Prix de l'option sélectionnée:</span>
+          <span class="option-price-value">{{ displayPrice }} TND</span>
+        </div>
+      </div>
       
 
       <!-- Details -->

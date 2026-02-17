@@ -6,6 +6,7 @@ export class Category {
         public id_category: number,
         public nom: string,
         public description: string,
+        public image?: string,
         public parentCategory?: Category,
         public childCategories?: Category[],
         public user?: User,

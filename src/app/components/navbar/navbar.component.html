@@ -4,21 +4,27 @@
     <!-- Brand -->
     <a class="brand" routerLink="/" (click)="closeMenu()">
       <img src="mouja.png" class="logo">
-      <span class="brand-text">AquaLux</span>
+      <span class="brand-text">Crystal Piscine</span>
     </a>
 
     <!-- Desktop links -->
     <div class="links desktop-only">
       <a *ngFor="let link of navLinks"
          [routerLink]="link.to"
-         class="nav-link">
+         class="nav-link"
+         [class.has-badge]="link.to === '/boutique'">
         {{ link.label }}
+        <!-- Sales Badge for Boutique -->
+        <span *ngIf="link.to === '/boutique'" class="sales-badge">
+          <i class="fa fa-fire"></i> SOLDES
+        </span>
       </a>
     </div>
 
     <!-- Desktop actions -->
     <div class="actions desktop-only">
-      <p><i class="fa-solid fa-phone"></i> 92664240</p>
+      <p><i class="fa-solid fa-phone"></i> 95 529 297
+</p>
 
       <a routerLink="/compte" class="icon-btn">
         <i class="fa fa-user"></i>
@@ -42,8 +48,13 @@
   <div class="mobile-menu" [class.open]="isMenuOpen">
     <a *ngFor="let link of navLinks"
        [routerLink]="link.to"
-       (click)="closeMenu()">
+       (click)="closeMenu()"
+       [class.has-badge-mobile]="link.to === '/boutique'">
       {{ link.label }}
+      <!-- Sales Badge for Mobile Boutique -->
+      <span *ngIf="link.to === '/boutique'" class="sales-badge-mobile">
+        <i class="fa fa-fire"></i> SOLDES
+      </span>
     </a>
 
     <div class="mobile-actions">
@@ -52,4 +63,4 @@
       <span class="phone"><i class="fa fa-phone"></i> 92664240</span>
     </div>
   </div>
-</nav>
+</nav>  

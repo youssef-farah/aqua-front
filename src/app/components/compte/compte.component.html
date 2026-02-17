@@ -313,7 +313,7 @@
     </main>
   </div>
 
-  <!-- Login/Register View (Keep existing code) -->
+  <!-- Login/Register View -->
   <div *ngIf="!isLoggedIn" class="auth-section">
     <div class="card tabs-card">
       <div class="tabs">
@@ -347,8 +347,12 @@
             <input 
               type="email" 
               formControlName="email" 
+              [class.error]="shouldShowLoginError('email')"
               placeholder="votre@email.com"
             />
+            <span *ngIf="shouldShowLoginError('email')" class="error-message">
+              {{ getLoginErrorMessage('email') }}
+            </span>
           </div>
           
           <div class="form-group">
@@ -356,8 +360,12 @@
             <input 
               type="password" 
               formControlName="password" 
+              [class.error]="shouldShowLoginError('password')"
               placeholder="••••••••"
             />
+            <span *ngIf="shouldShowLoginError('password')" class="error-message">
+              {{ getLoginErrorMessage('password') }}
+            </span>
           </div>
           
           <div class="google-signin-wrapper">
@@ -384,23 +392,53 @@
             <div class="grid-2">
               <div class="form-group">
                 <label>Nom *</label>
-                <input formControlName="nom" placeholder="Nom" />
+                <input 
+                  formControlName="nom" 
+                  [class.error]="shouldShowRegisterError('nom')"
+                  placeholder="Nom" 
+                />
+                <span *ngIf="shouldShowRegisterError('nom')" class="error-message">
+                  {{ getRegisterErrorMessage('nom') }}
+                </span>
               </div>
 
               <div class="form-group">
                 <label>Prénom *</label>
-                <input formControlName="prenom" placeholder="Prénom" />
+                <input 
+                  formControlName="prenom" 
+                  [class.error]="shouldShowRegisterError('prenom')"
+                  placeholder="Prénom" 
+                />
+                <span *ngIf="shouldShowRegisterError('prenom')" class="error-message">
+                  {{ getRegisterErrorMessage('prenom') }}
+                </span>
               </div>
             </div>
 
             <div class="form-group">
               <label>Email *</label>
-              <input type="email" formControlName="email" placeholder="votre@email.com" />
+              <input 
+                type="email" 
+                formControlName="email" 
+                [class.error]="shouldShowRegisterError('email')"
+                placeholder="votre@email.com" 
+              />
+              <span *ngIf="shouldShowRegisterError('email')" class="error-message">
+                {{ getRegisterErrorMessage('email') }}
+              </span>
             </div>
 
             <div class="form-group">
               <label>Mot de passe *</label>
-              <input type="password" formControlName="password" placeholder="••••••••" />
+              <input 
+                type="password" 
+                formControlName="password" 
+                [class.error]="shouldShowRegisterError('password')"
+                placeholder="••••••••" 
+              />
+              <span *ngIf="shouldShowRegisterError('password')" class="error-message">
+                {{ getRegisterErrorMessage('password') }}
+              </span>
             </div>
 
             <button
@@ -417,33 +455,64 @@
           <div class="step" [class.active]="registerStep === 2">
             <div class="form-group">
               <label>Téléphone</label>
-              <input type="tel" formControlName="telephone" placeholder="+216 XX XXX XXX" />
+              <input 
+                type="tel" 
+                formControlName="telephone" 
+                [class.error]="shouldShowRegisterError('telephone')"
+                placeholder="+216 XX XXX XXX" 
+              />
+              <span *ngIf="shouldShowRegisterError('telephone')" class="error-message">
+                {{ getRegisterErrorMessage('telephone') }}
+              </span>
             </div>
 
             <div formGroupName="adresse" class="address-grid">
               <div class="form-group">
-                <label>Pays</label>
-                <input formControlName="country" placeholder="Pays" />
+                <label>Pays *</label>
+                <input 
+                  formControlName="country" 
+                  [class.error]="shouldShowRegisterError('adresse.country')"
+                  placeholder="Pays" 
+                />
+                <span *ngIf="shouldShowRegisterError('adresse.country')" class="error-message">
+                  {{ getRegisterErrorMessage('adresse.country') }}
+                </span>
               </div>
 
               <div class="form-group">
-                <label>Ville</label>
-                <input formControlName="city" placeholder="Ville" />
+                <label>Ville *</label>
+                <input 
+                  formControlName="city" 
+                  [class.error]="shouldShowRegisterError('adresse.city')"
+                  placeholder="Ville" 
+                />
+                <span *ngIf="shouldShowRegisterError('adresse.city')" class="error-message">
+                  {{ getRegisterErrorMessage('adresse.city') }}
+                </span>
               </div>
 
               <div class="form-group">
                 <label>Rue</label>
-                <input formControlName="street" placeholder="Rue" />
+                <input 
+                  formControlName="street" 
+                  placeholder="Rue" 
+                />
               </div>
 
               <div class="form-group">
                 <label>Code postal</label>
-                <input formControlName="postalCode" placeholder="Code postal" />
+                <input 
+                  formControlName="postalCode" 
+                  placeholder="Code postal" 
+                />
               </div>
 
               <div class="form-group">
                 <label>N° maison</label>
-                <input formControlName="houseNumber" placeholder="N°" />
+                <input 
+                  formControlName="houseNumber" 
+                  placeholder="N°" 
+                />
               </div>
             </div>
 

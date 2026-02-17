@@ -24,6 +24,7 @@ import { DosageComponent } from './components/dosage/dosage.component';
 import { FailpayComponent } from './components/failpay/failpay.component';
 import { SuccespayComponent } from './components/succespay/succespay.component';
 import { RedirectpageComponent } from './components/redirectpage/redirectpage.component';
+import { ContinfosComponent } from './components/continfos/continfos.component';
 const routes: Routes = [
 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -48,6 +49,7 @@ const routes: Routes = [
     {path:'failpay', component:FailpayComponent},
     {path:'succespay', component:SuccespayComponent},
     {path:'redirectpage', component:RedirectpageComponent},
+    {path:'continfos', component:ContinfosComponent},
 
   {path:"main",component:MainComponent,  canActivate: [AuthGuard],children:[
     { path: "", redirectTo: "dashboard", pathMatch: "full" },

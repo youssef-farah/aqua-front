@@ -8,14 +8,16 @@ import { HttpClient } from '@angular/common/http';
   selector: 'app-offres',
   templateUrl: './offres.component.html',
   styleUrl: './offres.component.css'
-})export class OffresComponent implements OnInit {
+
+})
+export class OffresComponent implements OnInit {
   offres: Offre[] = [];
   loading = false;
   error: string | null = null;
-  
+
   selectedFile: File | null = null;
-imagePreview: string | ArrayBuffer | null = null;
-  // Modal states
+  imagePreview: string | ArrayBuffer | null = null;
+  
   showCreateModal = false;
   showEditModal = false;
   showDeleteModal = false;
@@ -28,13 +30,10 @@ imagePreview: string | ArrayBuffer | null = null;
     prix: 0,
     imageUrl: ''
   };
-
   constructor(private offreService: OffreService , private http : HttpClient) {}
-
   ngOnInit(): void {
     this.loadOffres();
   }
-
   loadOffres(): void {
     this.loading = true;
     this.error = null;
