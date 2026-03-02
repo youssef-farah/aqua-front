@@ -25,7 +25,37 @@
   align-items: center;
   gap: 10px;
   text-decoration: none;
+  height: 100%;
 }
+
+
+/* Brand text layout */
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  justify-content: center;
+}
+
+/* Main title */
+.brand-main {
+  font-weight: 800;
+  font-size: 20px;
+  background: linear-gradient(90deg,#3dbaf4,#067bd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Second line */
+.brand-sub {
+  font-size: 11px;
+  color: #c59696; /* grey */
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-top: 2px;
+  margin-left: 2px;
+}
+
 
 .logo {
   width: 50px;
@@ -36,7 +66,7 @@
 .brand-text {
   font-weight: 800;
   font-size: 20px;
-  background: linear-gradient(90deg,#3dbaf4,#067bd4);
+  background:  #59595aa1;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
