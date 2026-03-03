@@ -27,9 +27,8 @@
 
 <div class="boutique-container">
   
-  <!-- Breadcrumb Navigation - Always visible -->
+  <!-- Breadcrumb Navigation -->
   <div class="categories-breadcrumb">
-    <!-- Home/Root -->
     <span 
       class="breadcrumb-item root" 
       [class.active]="breadcrumbPath.length === 0"
@@ -38,7 +37,6 @@
       Accueil
     </span>
     
-    <!-- Dynamic breadcrumb items -->
     <ng-container *ngFor="let category of breadcrumbPath; let i = index">
       <span class="breadcrumb-separator">›</span>
       <span 
@@ -51,7 +49,7 @@
     </ng-container>
   </div>
 
-  <!-- Parent Categories Section (shown on initial load) -->
+  <!-- Parent Categories Section -->
   <div 
     *ngIf="selectedCategoryId === null"
     class="child-categories-section"
@@ -74,7 +72,7 @@
     </div>
   </div>
 
-  <!-- Child Categories Section (shown when parent is selected and has children) -->
+  <!-- Child Categories Section -->
   <div *ngIf="selectedCategoryId !== null && hasChildren(selectedCategoryId)" class="child-categories-section">
     <div class="child-categories-grid">
       <div 
@@ -171,10 +169,16 @@
           <strong>{{ filteredProducts.length }}</strong> produit(s) trouvé(s)
           <span *ngIf="selectedCategory" class="category-badge">{{ selectedCategory.nom }}</span>
         </p>
+
+        <!-- Page info -->
+        <p class="page-info" *ngIf="totalPages > 1">
+          Page <strong>{{ currentPage }}</strong> sur <strong>{{ totalPages }}</strong>
+        </p>
       </div>
 
+      <!-- ✅ Use paginatedProducts instead of filteredProducts -->
       <div class="products-grid">
-        <div *ngFor="let product of filteredProducts" class="product-card">
+        <div *ngFor="let product of paginatedProducts" class="product-card">
           <div class="product-badge" *ngIf="product.stock < 5 && product.stock > 0">
             Stock limité
           </div>
@@ -234,6 +238,43 @@
         <h3>Aucun produit trouvé</h3>
         <p>Essayez d'ajuster vos filtres ou votre recherche</p>
       </div>
+
+      <!-- ✅ Pagination Bar -->
+      <div class="pagination-bar" *ngIf="totalPages > 1">
+        <button 
+          class="pagination-btn prev-btn"
+          (click)="goToPreviousPage()"
+          [disabled]="currentPage === 1"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Précédent
+        </button>
+
+        <div class="pagination-pages">
+          <span 
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            class="page-dot"
+            [class.active]="currentPage === i + 1"
+            (click)="currentPage = i + 1"
+          >
+            {{ i + 1 }}
+          </span>
+        </div>
+
+        <button 
+          class="pagination-btn next-btn"
+          (click)="goToNextPage()"
+          [disabled]="currentPage === totalPages"
+        >
+          Suivant
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
     </div>
     
   </div>

@@ -214,7 +214,10 @@
                                     <small><a [routerLink]="['/dosage']" class="volume-link">Vous pouvez calculer le volume ici →</a></small>
                                 </div>
 
-                                <button type="submit" class="submit-btn">Envoyer la demande</button>
+                               <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+  {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer la demande' }}
+</button>
+<p *ngIf="errorMessage" style="color:red">{{ errorMessage }}</p>
                             </form>
                         </div>
 
@@ -344,7 +347,10 @@
                                         <option value="5-years-with">5 Ans - Avec produits (18,296 DT) - ÉCONOMISEZ 15%</option>
                                     </select>
                                 </div>
-                                <button type="submit" class="submit-btn">Envoyer la demande</button>
+                                  <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+  {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer la demande' }}
+</button>
+<p *ngIf="errorMessage" style="color:red">{{ errorMessage }}</p>
                             </form>
                         </div>
 

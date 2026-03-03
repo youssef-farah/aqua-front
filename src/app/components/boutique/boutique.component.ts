@@ -18,23 +18,61 @@ export class BoutiqueComponent implements OnInit {
   parentCategories: Category[] = [];
   allCategories: Category[] = [];
   categoryImages: Map<number, string> = new Map();
-  
+
   searchTerm: string = '';
   selectedCategoryId: number | null = null;
   selectedCategory: Category | null = null;
   hoveredCategoryId: number | null = null;
-  
+
   // Breadcrumb path
   breadcrumbPath: Category[] = [];
-  
+
   currentSort: string = 'default';
   isLoadingProducts: boolean = false;
   isLoadingCategories: boolean = false;
-  
+
   minPrice: number | null = null;
   maxPrice: number | null = null;
   selectedOrigin: string | null = null;
   inStockOnly: boolean = false;
+
+  // ─── Pagination ───────────────────────────────────────────────────
+  currentPage: number = 1;
+  readonly pageSize: number = 30;
+
+  get totalPages(): number {
+    return Math.ceil(this.filteredProducts.length / this.pageSize);
+  }
+
+  get paginatedProducts(): Product[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.scrollToProducts();
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.scrollToProducts();
+    }
+  }
+
+  private scrollToProducts(): void {
+    setTimeout(() => {
+      document.querySelector('.products-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  private resetPagination(): void {
+    this.currentPage = 1;
+  }
+  // ─────────────────────────────────────────────────────────────────
 
   constructor(
     private productService: ProductServiceService,
@@ -42,38 +80,34 @@ export class BoutiqueComponent implements OnInit {
     private router: Router
   ) {}
 
- ngOnInit(): void {
-  this.isLoadingCategories = true;
+  ngOnInit(): void {
+    this.isLoadingCategories = true;
 
-  this.categoryService.getAllCategories().subscribe({
-    next: (all) => {
-      this.allCategories = all;
+    this.categoryService.getAllCategories().subscribe({
+      next: (all) => {
+        this.allCategories = all;
 
-      this.categoryService.getAllParentCategories().subscribe({
-        next: (parents) => {
-          this.parentCategories = parents;
-          this.loadCategoryImages(); // ✅ SAFE NOW
-          this.isLoadingCategories = false;
-        },
-        error: () => this.isLoadingCategories = false
-      });
-    },
-    error: () => this.isLoadingCategories = false
-  });
+        this.categoryService.getAllParentCategories().subscribe({
+          next: (parents) => {
+            this.parentCategories = parents;
+            this.loadCategoryImages();
+            this.isLoadingCategories = false;
+          },
+          error: () => this.isLoadingCategories = false
+        });
+      },
+      error: () => this.isLoadingCategories = false
+    });
 
-  this.loadProducts();
-}
-
+    this.loadProducts();
+  }
 
   loadAllCategories(): void {
     this.categoryService.getAllCategories().subscribe({
       next: (data) => {
         this.allCategories = data;
-        console.log('All categories loaded:', this.allCategories);
       },
-      error: (error) => {
-        console.error('Error loading all categories:', error);
-      }
+      error: (error) => console.error('Error loading all categories:', error)
     });
   }
 
@@ -82,7 +116,6 @@ export class BoutiqueComponent implements OnInit {
     this.categoryService.getAllParentCategories().subscribe({
       next: (data) => {
         this.parentCategories = data;
-        console.log('Parent categories loaded:', this.parentCategories);
         this.loadCategoryImages();
         this.isLoadingCategories = false;
       },
@@ -98,62 +131,43 @@ export class BoutiqueComponent implements OnInit {
       next: (children) => {
         children.forEach(child => {
           child.parentCategory = { id_category: categoryId } as Category;
-
-          const exists = this.allCategories.find(
-            cat => cat.id_category === child.id_category
-          );
-
-          if (!exists) {
-            this.allCategories.push(child);
-          }
+          const exists = this.allCategories.find(cat => cat.id_category === child.id_category);
+          if (!exists) this.allCategories.push(child);
         });
       },
-      error: (error) => {
-        console.error(`Error loading children for category ${categoryId}`, error);
-      }
+      error: (error) => console.error(`Error loading children for category ${categoryId}`, error)
     });
   }
 
   hasChildrenProperty(category: Category): boolean {
-    return category.childCategories !== undefined && 
-           category.childCategories !== null && 
-           category.childCategories.length > 0;
+    return category.childCategories !== undefined &&
+      category.childCategories !== null &&
+      category.childCategories.length > 0;
   }
 
   getHoveredCategory(): Category | null {
     if (!this.hoveredCategoryId) return null;
-    
-    const parentCategory = this.parentCategories.find(
-      c => c.id_category === this.hoveredCategoryId
-    );
+    const parentCategory = this.parentCategories.find(c => c.id_category === this.hoveredCategoryId);
     if (parentCategory) return parentCategory;
-    
-    return this.allCategories.find(
-      c => c.id_category === this.hoveredCategoryId
-    ) || null;
+    return this.allCategories.find(c => c.id_category === this.hoveredCategoryId) || null;
   }
-loadCategoryImages(): void {
-  const requests = this.allCategories.map(category =>
-    this.productService.getProductsByCategory(category.id_category)
-  );
 
-  forkJoin(requests).subscribe({
-    next: (results) => {
-      results.forEach((products, index) => {
-        if (products && products.length > 0) {
-          this.categoryImages.set(
-            this.allCategories[index].id_category,
-            products[0].image
-          );
-        }
-      });
-    },
-    error: (error) => {
-      console.error('Error loading category images', error);
-    }
-  });
-}
+  loadCategoryImages(): void {
+    const requests = this.allCategories.map(category =>
+      this.productService.getProductsByCategory(category.id_category)
+    );
 
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        results.forEach((products, index) => {
+          if (products && products.length > 0) {
+            this.categoryImages.set(this.allCategories[index].id_category, products[0].image);
+          }
+        });
+      },
+      error: (error) => console.error('Error loading category images', error)
+    });
+  }
 
   getCategoryImage(categoryId: number): string {
     return this.categoryImages.get(categoryId) || 'mouja.png';
@@ -191,88 +205,53 @@ loadCategoryImages(): void {
     });
   }
 
-selectCategory(category: Category | null): void {
-  if (category === null) {
-    // Reset everything
-    this.selectedCategoryId = null;
-    this.selectedCategory = null;
-    this.breadcrumbPath = [];
-    this.loadProducts();
-    return;
+  selectCategory(category: Category | null): void {
+    if (category === null) {
+      this.selectedCategoryId = null;
+      this.selectedCategory = null;
+      this.breadcrumbPath = [];
+      this.loadProducts();
+      return;
+    }
+
+    this.selectedCategoryId = category.id_category;
+    this.selectedCategory = category;
+    this.updateBreadcrumbPath(category);
+    this.loadProductsByCategory(category.id_category);
+    this.loadChildrenForCategory(category.id_category);
   }
 
-  this.selectedCategoryId = category.id_category;
-  this.selectedCategory = category;
-
-  // ✅ NEW SIMPLE LOGIC
-  this.updateBreadcrumbPath(category);
-
-  // Load products for selected category
-  this.loadProductsByCategory(category.id_category);
-
-  // Load children if needed
-  this.loadChildrenForCategory(category.id_category);
-}
-
-updateBreadcrumbPath(category: Category): void {
-  // Find if category already exists in breadcrumb
-  const index = this.breadcrumbPath.findIndex(
-    c => c.id_category === category.id_category
-  );
-
-  if (index === -1) {
-    // ➕ Category not in path → add it
-    this.breadcrumbPath.push(category);
-  } else {
-    // ⬅️ Category exists → go back to it
-    this.breadcrumbPath = this.breadcrumbPath.slice(0, index + 1);
+  updateBreadcrumbPath(category: Category): void {
+    const index = this.breadcrumbPath.findIndex(c => c.id_category === category.id_category);
+    if (index === -1) {
+      this.breadcrumbPath.push(category);
+    } else {
+      this.breadcrumbPath = this.breadcrumbPath.slice(0, index + 1);
+    }
   }
 
-  console.log(
-    'Updated breadcrumb:',
-    this.breadcrumbPath.map(c => c.nom)
-  );
-}
-
-  // Build the breadcrumb path from root to current category
   buildBreadcrumbPath(category: Category): void {
     this.breadcrumbPath = [];
     let current: Category | null = category;
     const visited = new Set<number>();
 
-    // Build path from current to root
     while (current && !visited.has(current.id_category)) {
       visited.add(current.id_category);
-      this.breadcrumbPath.unshift(current); 
-      
+      this.breadcrumbPath.unshift(current);
+
       if (current.parentCategory?.id_category) {
         const parentId = current.parentCategory.id_category;
-        
-        // Try to find parent in allCategories first
-        let parent = this.allCategories.find(
-          cat => cat.id_category === parentId
-        );
-        
-        // If not found, try parentCategories
-        if (!parent) {
-          parent = this.parentCategories.find(
-            cat => cat.id_category === parentId
-          );
-        }
-        
+        let parent = this.allCategories.find(cat => cat.id_category === parentId);
+        if (!parent) parent = this.parentCategories.find(cat => cat.id_category === parentId);
         current = parent || null;
       } else {
         current = null;
       }
     }
-    
-    console.log('Breadcrumb path built:', this.breadcrumbPath.map(c => c.nom));
   }
 
-  // Navigate to a category from breadcrumb
   navigateToBreadcrumbCategory(index: number): void {
     if (index === -1) {
-      // Navigate to home (all categories)
       this.selectCategory(null);
     } else {
       const category = this.breadcrumbPath[index];
@@ -285,15 +264,12 @@ updateBreadcrumbPath(category: Category): void {
       this.parentCategories.find(c => c.id_category === categoryId) ||
       this.allCategories.find(c => c.id_category === categoryId);
 
-    // Ensure child categories have proper parent reference
     const children = parent?.childCategories || [];
-    
     children.forEach(child => {
       if (!child.parentCategory) {
         child.parentCategory = { id_category: categoryId } as Category;
       }
     });
-    
     return children;
   }
 
@@ -307,14 +283,14 @@ updateBreadcrumbPath(category: Category): void {
 
   applyFilters(): void {
     this.filteredProducts = this.products.filter(product => {
-      const matchesSearch = !this.searchTerm || 
+      const matchesSearch = !this.searchTerm ||
         product.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         (product.description && product.description.toLowerCase().includes(this.searchTerm.toLowerCase()));
 
       const matchesPrice = (this.minPrice === null || product.prix >= this.minPrice) &&
-                          (this.maxPrice === null || product.prix <= this.maxPrice);
+        (this.maxPrice === null || product.prix <= this.maxPrice);
 
-      const matchesOrigin = !this.selectedOrigin || 
+      const matchesOrigin = !this.selectedOrigin ||
         product.lieuDeProduction.toLowerCase() === this.selectedOrigin.toLowerCase();
 
       const matchesStock = !this.inStockOnly || product.stock > 0;
@@ -323,12 +299,13 @@ updateBreadcrumbPath(category: Category): void {
     });
 
     this.sortProducts();
+    this.resetPagination(); // ← reset to page 1 whenever filters change
   }
 
   onPriceFilterChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const value = selectElement.value;
-    
+
     if (value === '') {
       this.minPrice = null;
       this.maxPrice = null;
@@ -337,7 +314,7 @@ updateBreadcrumbPath(category: Category): void {
       this.minPrice = min;
       this.maxPrice = max;
     }
-    
+
     this.applyFilters();
   }
 
@@ -381,6 +358,7 @@ updateBreadcrumbPath(category: Category): void {
     const selectElement = event.target as HTMLSelectElement;
     this.currentSort = selectElement.value;
     this.sortProducts();
+    this.resetPagination();
   }
 
   sortProducts(): void {
@@ -394,9 +372,6 @@ updateBreadcrumbPath(category: Category): void {
       case 'name':
         this.filteredProducts.sort((a, b) => a.titre.localeCompare(b.titre));
         break;
-      case 'pop':
-        break;
-      case 'default':
       default:
         break;
     }
@@ -419,26 +394,20 @@ updateBreadcrumbPath(category: Category): void {
   }
 
   getNestedCategories(categoryId: number): Category[] {
-    return this.allCategories.filter(
-      cat => cat.parentCategory?.id_category === categoryId
-    );
+    return this.allCategories.filter(cat => cat.parentCategory?.id_category === categoryId);
   }
 
   getGrandchildrenCategories(parentId: number, childId: number): Category[] {
-    return this.allCategories.filter(
-      cat => cat.parentCategory?.id_category === childId
-    );
+    return this.allCategories.filter(cat => cat.parentCategory?.id_category === childId);
   }
 
   getCategoryPath(category: Category | null): Category[] {
     const path: Category[] = [];
     let current = category;
-
     while (current) {
       path.unshift(current);
       current = current.parentCategory || null;
     }
-
     return path;
   }
 }
