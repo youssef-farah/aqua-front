@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductServiceService } from '../../../services/product-service.service';
 import { CategoryServiceService } from '../../../services/category-service.service';
 import { Product } from '../../../models/product';
-import { ProductOption } from '../../../models/product-option';
+import { productoption } from '../../../models/product-option';
 import { Category } from '../../../models/category';
 import { HttpClient } from '@angular/common/http';
 
@@ -301,8 +301,8 @@ options: this.productFormData.options.map((o: any) => ({
         this.productFormData.options = [];
       }
       
-      // Create ProductOption object with name and price
-      const newOption: ProductOption = new ProductOption(
+      // Create productoption object with name and price
+      const newOption: productoption = new productoption(
   this.newOptionName.trim(),
   this.newOptionPrice ?? undefined
 );

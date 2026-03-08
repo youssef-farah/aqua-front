@@ -8,6 +8,8 @@ export interface CartItemDTO {
   productId: number;
   quantity: number;
   price: number;
+  productoption?: string; // ADD THIS
+
 }
 
 export interface PaymentInitiateRequest {

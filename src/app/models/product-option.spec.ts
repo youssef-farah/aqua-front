@@ -1,7 +1,7 @@
-import { ProductOption } from './product-option';
+import { productoption } from './product-option';
 
-describe('ProductOption', () => {
+describe('productoption', () => {
   it('should create an instance', () => {
-    expect(new ProductOption()).toBeTruthy();
+    expect(new productoption()).toBeTruthy();
   });
 });

@@ -1,4 +1,4 @@
-export class ProductOption {
+export class productoption {
   id?: number;   // IMPORTANT optional
   optionName!: string;
   optionPrice?: number;

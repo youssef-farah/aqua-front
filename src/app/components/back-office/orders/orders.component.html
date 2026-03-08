@@ -62,7 +62,7 @@
             <div class="items-container">
               <ul *ngIf="order.items && order.items.length > 0">
                 <li *ngFor="let item of order.items">
-                  <strong>{{ item.product.titre }}</strong>
+                  <strong>{{ item.product.titre }} {{item.productoption}}</strong>
                   — Qty: {{ item.quantity }}
                   — Unit: {{ item.unitPrice | currency:'TND' }}
                   — Subtotal: {{ item.subTotal | currency:'TND' }}

@@ -25,9 +25,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   ];
 
   testimonials = [
-    { name: 'Ahmed Ben Ali', text: 'Service impeccable et produits de haute qualité. Notre piscine est magnifique!', rating: 5 },
-    { name: 'Fatma Gharbi', text: "Équipe professionnelle et à l'écoute. Je recommande vivement!", rating: 5 },
-    { name: 'Mohamed Trabelsi', text: 'Excellent rapport qualité-prix. Très satisfait de mon achat.', rating: 5 }
+    { name: 'Bilel Ben Ali', text: 'Service impeccable et produits de haute qualité. Notre piscine est magnifique!', rating: 5 },
+    { name: 'Fatma Chrigui', text: "Équipe professionnelle et à l'écoute. Je recommande vivement!", rating: 5 },
+    { name: 'Mohamed Marweni', text: 'Excellent rapport qualité-prix. Très satisfait de mon achat.', rating: 5 }
   ];
 
   partners = [

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 
 import { ProductServiceService } from '../../services/product-service.service';
 import { Product } from '../../models/product';
-import { ProductOption } from '../../models/product-option';
+import { productoption } from '../../models/product-option';
 import { CartService } from '../../services/cart.service';
 
 @Component({
@@ -20,7 +20,7 @@ export class ProductDetailsComponent implements OnInit {
   similarProducts: Product[] = [];
   
   // New properties for options
-  selectedOption: ProductOption | null = null;
+  selectedOption: productoption | null = null;
   displayPrice: number = 0;
   
   constructor(

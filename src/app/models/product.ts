@@ -1,5 +1,5 @@
 import { Category } from "./category";
-import { ProductOption } from "./product-option";
+import { productoption } from "./product-option";
 import { User } from "./user";
 
 export class Product {
@@ -12,7 +12,7 @@ export class Product {
         public stock: number,
         public image: string,
         public complementaryInfos?: { [key: string]: string },
-        public options?: ProductOption[],
+        public options?: productoption[],
         public category?: Category,
         public user?: User,
         public prix?: number,

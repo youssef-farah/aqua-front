@@ -178,7 +178,8 @@ export class OrdersComponent implements OnInit {
       
       return [
         item.product.code || 'N/A', // Product code
-        item.product.titre,
+        item.product.titre + ' ' + (item.productoption || ''),
+         // Product option if exists
         quantity.toString(),
         `${unitPrice.toFixed(3)}`,
         '19%',

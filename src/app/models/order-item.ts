@@ -10,6 +10,7 @@ export class OrderItem {
         public product: Product,
         public quantity: number,
         public unitPrice: number,
-        public subTotal: number
+        public subTotal: number,
+       public productoption:string
     ) {}
 }

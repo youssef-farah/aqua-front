@@ -7,6 +7,8 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  productoption?: string; // ADD THIS
+
 }
 
 @Injectable({
@@ -17,22 +19,27 @@ export class CartService {
   private cartSource = new BehaviorSubject<CartItem[]>(this.cart);
   cart$ = this.cartSource.asObservable();
 
-  addToCart(product: Product, quantity: number) {
-    const existing = this.cart.find(item => item.id === product.code);
+addToCart(product: any, quantity: number) {
+  const optionName = product.selectedOption?.optionName ?? undefined;
 
-    if (existing) {
-      existing.quantity += quantity;
-    } else {
-      this.cart.push({
-        id: product.code,
-        name: product.titre,
-        price: product.prix,
-        quantity: quantity
-      });
-    }
+  const existing = this.cart.find(
+    item => item.id === product.code && item.productoption === optionName
+  );
 
-    this.cartSource.next([...this.cart]);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    this.cart.push({
+      id: product.code,
+      name: product.titre,
+      price: product.prix,
+      quantity: quantity,
+      productoption: optionName // ADD THIS
+    });
   }
+
+  this.cartSource.next([...this.cart]);
+}
 
   getCart() {
     return this.cart;

@@ -265,7 +265,8 @@ export class CartComponent implements OnInit {
     const cartItemsDTO: CartItemDTO[] = this.cart.map(item => ({
       productId: item.id,
       quantity: item.quantity,
-      price: item.price
+      price: item.price,
+      productoption: item.productoption 
     }));
 
     const request: PaymentInitiateRequest = {
